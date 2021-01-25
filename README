@@ -1,3 +1,9 @@
+# Fork info (wip)
+This fork is to make Geomerative work better with my [processing-sketches]() repo. It probably won't be useful to you unless want the following things out of geomerative:
+1. Only calculate bounds once for a shape that doesn't change
+  a. This makes it more efficient to call contains many times for the same shape
+2. Make binary (diff, intersection, xor..) operations that leave you with _open_ paths, not just closed polygons.
+
 COPYRIGHT
 ---------------
 
