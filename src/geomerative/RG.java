@@ -138,9 +138,10 @@ public class RG implements PConstants {
 
   /**
    * Load and get the font object that can be used in the textFont method.
-   * @eexample loadFont
-   * @param fontFile  the filename of the font to be loaded
+   *
+   * @param fontFile the filename of the font to be loaded
    * @return RFont, the font object
+   * @eexample loadFont
    */
   public static RFont loadFont(String fontFile) {
     RFont newFntLoader = new RFont(fontFile);
@@ -151,8 +152,9 @@ public class RG implements PConstants {
 
   /**
    * Draw text to the screen using the font set using the textFont method.
+   *
+   * @param text the string to be drawn on the screen
    * @eexample text
-   * @param text  the string to be drawn on the screen
    */
   public static void text(String text) {
     RShape grp = getText(text);
@@ -161,9 +163,10 @@ public class RG implements PConstants {
 
   /**
    * Set the font object to be used in all text calls.
+   *
+   * @param font the font object to be set
+   * @param size the size of the font
    * @eexample textFont
-   * @param font  the font object to be set
-   * @param size  the size of the font
    */
   public static void textFont(RFont font, int size) {
     font.setSize(size);
@@ -172,12 +175,13 @@ public class RG implements PConstants {
 
   /**
    * Get the shape corresponding to a text.  Use the textFont method to select the font and size.
-   * @eexample getText
+   *
    * @param font  the filename of the font to be loaded
    * @param text  the string to be created
    * @param size  the size of the font to be used
-   * @param align  the alignment. Use RG.CENTER, RG.LEFT or RG.RIGHT
+   * @param align the alignment. Use RG.CENTER, RG.LEFT or RG.RIGHT
    * @return RShape, the shape created
+   * @eexample getText
    */
   public static RShape getText(String text, String font, int size, int align) {
     RFont tempFntLoader = new RFont(
@@ -201,12 +205,13 @@ public class RG implements PConstants {
 
   /**
    * Draw a shape to a given position on the screen.
+   *
+   * @param shp the shape to be drawn
+   * @param x   the horizontal coordinate
+   * @param y   the vertical coordinate
+   * @param w   the width with which we draw the shape
+   * @param h   the height with which we draw the shape
    * @eexample shape
-   * @param shp  the shape to be drawn
-   * @param x  the horizontal coordinate
-   * @param y  the vertical coordinate
-   * @param w  the width with which we draw the shape
-   * @param h  the height with which we draw the shape
    */
   public static void shape(RShape shp, float x, float y, float w, float h) {
     RShape tshp = new RShape(shp);
@@ -245,6 +250,7 @@ public class RG implements PConstants {
 
   /**
    * Create a shape from an array of point arrays.
+   *
    * @eexample createShape
    */
   public static RShape createShape(RPoint[][] points) {
@@ -254,8 +260,9 @@ public class RG implements PConstants {
 
   /**
    * Load a shape object from a file.
+   *
+   * @param filename the SVG file to be loaded.  Must be in the data directory
    * @eexample loadShape
-   * @param filename  the SVG file to be loaded.  Must be in the data directory
    */
   public static RShape loadShape(String filename) {
     RSVG svgLoader = new RSVG();
@@ -264,9 +271,10 @@ public class RG implements PConstants {
 
   /**
    * Save a shape object to a file.
+   *
+   * @param filename the SVG file to be saved.
+   * @param shape    the shape to be saved.
    * @eexample saveShape
-   * @param filename  the SVG file to be saved.
-   * @param shape  the shape to be saved.
    */
   public static void saveShape(String filename, RShape shape) {
     RSVG svgSaver = new RSVG();
@@ -286,6 +294,7 @@ public class RG implements PConstants {
 
   /**
    * Begin to create a shape.
+   *
    * @eexample createShape
    */
   public static void beginShape() {
@@ -294,7 +303,8 @@ public class RG implements PConstants {
 
   /**
    * Begin a new path in the current shape.  Can only be called inside beginShape() and endShape().
-   * @param endMode  if called with RG.CLOSE it closes the current path before starting the new one.
+   *
+   * @param endMode if called with RG.CLOSE it closes the current path before starting the new one.
    * @eexample createShape
    */
   public static void breakShape(int endMode) {
@@ -313,12 +323,13 @@ public class RG implements PConstants {
 
   /**
    * Add a vertex to the shape.  Can only be called inside beginShape() and endShape().
+   *
+   * @param x the x coordinate of the vertex
+   * @param y the y coordinate of the vertex
    * @eexample createShape
-   * @param x  the x coordinate of the vertex
-   * @param y  the y coordinate of the vertex
    */
   public static void vertex(float x, float y) {
-    if (shape.countPaths() == 0) {
+    if (shape.paths.length == 0) {
       shape.addMoveTo(
         x,
         y
@@ -333,16 +344,17 @@ public class RG implements PConstants {
 
   /**
    * Add a bezierVertex to the shape.  Can only be called inside beginShape() and endShape().
+   *
+   * @param cx1 the x coordinate of the first control point
+   * @param cy1 the y coordinate of the first control point
+   * @param cx2 the x coordinate of the second control point
+   * @param cy2 the y coordinate of the second control point
+   * @param x   the x coordinate of the end point
+   * @param y   the y coordinate of the end point
    * @eexample createShape
-   * @param cx1  the x coordinate of the first control point
-   * @param cy1  the y coordinate of the first control point
-   * @param cx2  the x coordinate of the second control point
-   * @param cy2  the y coordinate of the second control point
-   * @param x  the x coordinate of the end point
-   * @param y  the y coordinate of the end point
    */
   public static void bezierVertex(float cx1, float cy1, float cx2, float cy2, float x, float y) {
-    if (shape.countPaths() == 0) {
+    if (shape.paths.length == 0) {
       throw new NoPathInitializedException();
     } else {
       shape.addBezierTo(
@@ -358,8 +370,9 @@ public class RG implements PConstants {
 
   /**
    * End the shape being created and draw it to the screen or the PGraphics passed as parameter.
+   *
+   * @param g the canvas on which to draw.  By default it draws on the screen
    * @eexample createShape
-   * @param g  the canvas on which to draw.  By default it draws on the screen
    */
   public static void endShape(PGraphics g) {
     shape.draw(g);
@@ -374,6 +387,7 @@ public class RG implements PConstants {
 
   /**
    * End the shape being created and get it as an object.
+   *
    * @eexample getShape
    */
   public static RShape getShape() {
@@ -389,12 +403,13 @@ public class RG implements PConstants {
 
   /**
    * Get an ellipse as a shape object.
-   * @eexample getEllipse
-   * @param x  x coordinate of the center of the shape
-   * @param y  y coordinate of the center of the shape
-   * @param w  width of the ellipse
-   * @param h  height of the ellipse
+   *
+   * @param x x coordinate of the center of the shape
+   * @param y y coordinate of the center of the shape
+   * @param w width of the ellipse
+   * @param h height of the ellipse
    * @return RShape, the shape created
+   * @eexample getEllipse
    */
   public static RShape getEllipse(float x, float y, float w, float h) {
     return RShape.createEllipse(
@@ -416,12 +431,13 @@ public class RG implements PConstants {
 
   /**
    * Get a line as a shape object.
-   * @eexample getLine
-   * @param x1  x coordinate of the first point of the line
-   * @param y1  y coordinate of the first point of the line
-   * @param x2  x coordinate of the last point of the line
-   * @param y2  y coordinate of the last point of the line
+   *
+   * @param x1 x coordinate of the first point of the line
+   * @param y1 y coordinate of the first point of the line
+   * @param x2 x coordinate of the last point of the line
+   * @param y2 y coordinate of the last point of the line
    * @return RShape, the shape created
+   * @eexample getLine
    */
   public static RShape getLine(float x1, float y1, float x2, float y2) {
     return RShape.createLine(
@@ -434,12 +450,13 @@ public class RG implements PConstants {
 
   /**
    * Get an rectangle as a shape object.
-   * @eexample getRect
-   * @param x  x coordinate of the top left corner of the shape
-   * @param y  y coordinate of the top left of the shape
-   * @param w  width of the rectangle
-   * @param h  height of the rectangle
+   *
+   * @param x x coordinate of the top left corner of the shape
+   * @param y y coordinate of the top left of the shape
+   * @param w width of the rectangle
+   * @param h height of the rectangle
    * @return RShape, the shape created
+   * @eexample getRect
    */
   public static RShape getRect(float x, float y, float w, float h) {
     return RShape.createRectangle(
@@ -461,13 +478,14 @@ public class RG implements PConstants {
 
   /**
    * Get a star as a shape object.
-   * @eexample getStar
-   * @param x  x coordinate of the center of the shape
-   * @param y  y coordinate of the center of the shape
-   * @param widthBig  the outter width of the star polygon
-   * @param widthSmall  the inner width of the star polygon
-   * @param spikes  the amount of spikes on the star polygon
+   *
+   * @param x          x coordinate of the center of the shape
+   * @param y          y coordinate of the center of the shape
+   * @param widthBig   the outter width of the star polygon
+   * @param widthSmall the inner width of the star polygon
+   * @param spikes     the amount of spikes on the star polygon
    * @return RShape, the shape created
+   * @eexample getStar
    */
   public static RShape getStar(float x, float y, float widthBig, float widthSmall, int spikes) {
     return RShape.createStar(
@@ -482,12 +500,13 @@ public class RG implements PConstants {
 
   /**
    * Get a ring as a shape object.
-   * @eexample getRing
-   * @param x  x coordinate of the center of the shape
-   * @param y  y coordinate of the center of the shape
-   * @param widthBig  the outter width of the ring polygon
-   * @param widthSmall  the inner width of the ring polygon
+   *
+   * @param x          x coordinate of the center of the shape
+   * @param y          y coordinate of the center of the shape
+   * @param widthBig   the outter width of the ring polygon
+   * @param widthSmall the inner width of the ring polygon
    * @return RShape, the shape created
+   * @eexample getRing
    */
   public static RShape getRing(float x, float y, float widthBig, float widthSmall) {
     return RShape.createRing(
@@ -519,10 +538,11 @@ public class RG implements PConstants {
 
   /**
    * Split a shape along the curve length in two parts.
-   * @eexample split
-   * @param shp  the shape to be splited
-   * @param t  the proportion (a value from 0 to 1) along the curve where to split
+   *
+   * @param shp the shape to be splited
+   * @param t   the proportion (a value from 0 to 1) along the curve where to split
    * @return RShape[], an array of shapes with two elements, one for each side of the split
+   * @eexample split
    */
   public static RShape[] split(RShape shp, float t) {
     return shp.split(t);
@@ -530,10 +550,11 @@ public class RG implements PConstants {
 
   /**
    * Adapt a shape along the curve of another shape.
-   * @eexample split
+   *
    * @param shp  the shape to be adapted
-   * @param path  the shape which curve will be followed
+   * @param path the shape which curve will be followed
    * @return RShape  the adapted shape
+   * @eexample split
    * @related setAdaptor ( )
    */
   public static RShape adapt(RShape shp, RShape path) {
@@ -544,9 +565,10 @@ public class RG implements PConstants {
 
   /**
    * Polygonize a shape.
-   * @eexample split
-   * @param shp  the shape to be polygonized
+   *
+   * @param shp the shape to be polygonized
    * @return RShape, the polygonized shape
+   * @eexample split
    * @related setPolygonizer ( )
    */
   public static RShape polygonize(RShape shp) {
@@ -593,18 +615,20 @@ public class RG implements PConstants {
 
   /**
    * Use this to set the resolution of the display.  This specifies the Dots Per Inch of the display.
-   * @param _dpi  the dots per inch of the display
-   * */
+   *
+   * @param _dpi the dots per inch of the display
+   */
   public static void setDpi(int _dpi) {
     dpi = _dpi;
   }
 
   /**
    * Binary difference between two shapes.
-   * @eexample binaryOps
-   * @param a  first shape to operate on
-   * @param b  second shape to operate on
+   *
+   * @param a first shape to operate on
+   * @param b second shape to operate on
    * @return RShape, the result of the operation
+   * @eexample binaryOps
    * @related diff ( )
    * @related union ( )
    * @related intersection ( )
@@ -616,10 +640,11 @@ public class RG implements PConstants {
 
   /**
    * Binary union between two shapes.
-   * @eexample binaryOps
-   * @param a  first shape to operate on
-   * @param b  second shape to operate on
+   *
+   * @param a first shape to operate on
+   * @param b second shape to operate on
    * @return RShape, the result of the operation
+   * @eexample binaryOps
    * @related diff ( )
    * @related union ( )
    * @related intersection ( )
@@ -631,10 +656,11 @@ public class RG implements PConstants {
 
   /**
    * Binary intersection between two shapes.
-   * @eexample binaryOps
-   * @param a  first shape to operate on
-   * @param b  second shape to operate on
+   *
+   * @param a first shape to operate on
+   * @param b second shape to operate on
    * @return RShape, the result of the operation
+   * @eexample binaryOps
    * @related diff ( )
    * @related union ( )
    * @related intersection ( )
@@ -646,10 +672,11 @@ public class RG implements PConstants {
 
   /**
    * Binary xor between two shapes.
-   * @eexample binaryOps
-   * @param a  first shape to operate on
-   * @param b  second shape to operate on
+   *
+   * @param a first shape to operate on
+   * @param b second shape to operate on
    * @return RShape, the result of the operation
+   * @eexample binaryOps
    * @related diff ( )
    * @related union ( )
    * @related intersection ( )
@@ -661,8 +688,9 @@ public class RG implements PConstants {
 
   /**
    * Ignore the styles of the shapes when drawing and use the Processing style methods.
+   *
+   * @param value value to which the ignoreStyles state should be set
    * @eexample ignoreStyles
-   * @param value  value to which the ignoreStyles state should be set
    */
   public static void ignoreStyles(boolean value) {
     ignoreStyles = value;
@@ -675,8 +703,9 @@ public class RG implements PConstants {
 
   /**
    * Use this to set the adaptor type.
+   *
+   * @param adptorType it can be RG.BYPOINT, RG.BYELEMENTPOSITION or RG.BYELEMENTINDEX
    * @eexample RShape_setAdaptor
-   * @param adptorType  it can be RG.BYPOINT, RG.BYELEMENTPOSITION or RG.BYELEMENTINDEX
    * @related BYPOINT
    * @related BYELEMENTPOSITION
    * @related BYELEMENTINDEX
@@ -687,8 +716,9 @@ public class RG implements PConstants {
 
   /**
    * Use this to set the adaptor scaling.  This scales the transformation of the adaptor.
+   *
+   * @param adptorScale the scaling coefficient
    * @eexample RShape_setAdaptor
-   * @param adptorScale  the scaling coefficient
    */
   public static void setAdaptorScale(float adptorScale) {
     adaptorScale = adptorScale;
@@ -696,9 +726,10 @@ public class RG implements PConstants {
 
   /**
    * Use this to set the adaptor length offset.  This specifies where to start adapting the group to the shape.
+   *
+   * @param adptorLengthOffset the offset along the curve of the shape. Must be a value between 0 and 1;
    * @eexample RShape_setAdaptorLengthOffset
-   * @param adptorLengthOffset  the offset along the curve of the shape. Must be a value between 0 and 1;
-   * */
+   */
   public static void setAdaptorLengthOffset(float adptorLengthOffset) throws RuntimeException {
     if (adptorLengthOffset >= 0F && adptorLengthOffset <= 1F)
       adaptorLengthOffset = adptorLengthOffset;
@@ -710,31 +741,32 @@ public class RG implements PConstants {
   /**
    * Use this to set the polygonizer type.
    *
-   * @param segmenterMethod  can be RG.ADAPTATIVE, RG.UNIFORMLENGTH or RG.UNIFORMSTEP.
-   *
+   * @param segmenterMethod can be RG.ADAPTATIVE, RG.UNIFORMLENGTH or RG.UNIFORMSTEP.
    * @eexample setPolygonizer
    * @related ADAPTATIVE
    * @related UNIFORMLENGTH
    * @related UNIFORMSTEP
-   * */
+   */
   public static void setPolygonizer(int segmenterMethod) {
     RCommand.setSegmentator(segmenterMethod);
   }
 
   /**
    * Use this to set the segmentator angle tolerance for the ADAPTATIVE segmentator and set the segmentator to ADAPTATIVE.
+   *
+   * @param angle an angle from 0 to PI/2 it defines the maximum angle between segments.
    * @eexample setPolygonizerAngle
-   * @param angle  an angle from 0 to PI/2 it defines the maximum angle between segments.
    * @related ADAPTATIVE
-   * */
+   */
   public static void setPolygonizerAngle(float angle) {
     RCommand.setSegmentAngle(angle);
   }
 
   /**
    * Use this to set the segmentator length for the UNIFORMLENGTH segmentator and set the segmentator to UNIFORMLENGTH.
+   *
+   * @param length the length of each resulting segment.
    * @eexample setPolygonizerLength
-   * @param length  the length of each resulting segment.
    * @related UNIFORMLENGTH
    * @related polygonize ( )
    */
@@ -744,8 +776,9 @@ public class RG implements PConstants {
 
   /**
    * Use this to set the segmentator step for the UNIFORMSTEP segmentator and set the segmentator to UNIFORMSTEP.
+   *
+   * @param step if a float from +0.0 to 1.0 is passed it's considered as the step, else it's considered as the number of steps.  When a value of 0.0 is used the steps will be calculated automatically depending on an estimation of the length of the curve.  The special value -1 is the same as 0.0 but also turning of the segmentation of lines (faster segmentation).
    * @eexample setSegmentStep
-   * @param step  if a float from +0.0 to 1.0 is passed it's considered as the step, else it's considered as the number of steps.  When a value of 0.0 is used the steps will be calculated automatically depending on an estimation of the length of the curve.  The special value -1 is the same as 0.0 but also turning of the segmentation of lines (faster segmentation).
    * @related UNIFORMSTEP
    * @related polygonize ( )
    */

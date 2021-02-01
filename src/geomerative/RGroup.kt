@@ -104,18 +104,9 @@ class RGroup : RGeomElem {
       return null
     }
 
-  /**
-   * Use this method to count the number of elements in the group.
-   * @eexample RGroup_countElements
-   * @return int, the number elements in the group.
-   * @related addElement ( )
-   * @related removeElement ( )
-   */
-  fun countElements(): Int = elements.size
-
   override fun print() {
     println("group: ")
-    for (i in 0 until countElements()) {
+    for (i in 0 until elements.size) {
       println("---  $i ---")
       elements[i].print()
       println("---------------")
@@ -132,7 +123,7 @@ class RGroup : RGeomElem {
       saveContext(g)
       setContext(g)
     }
-    for (i in 0 until countElements()) {
+    for (i in 0 until elements.size) {
       elements[i].draw(g)
     }
     if (!RG.ignoreStyles) {
@@ -145,7 +136,7 @@ class RGroup : RGeomElem {
       saveContext(a)
       setContext(a)
     }
-    for (i in 0 until countElements()) {
+    for (i in 0 until elements.size) {
       elements[i].draw(a)
     }
     if (!RG.ignoreStyles) {
@@ -170,7 +161,7 @@ class RGroup : RGeomElem {
    * @related removeElement ( )
    */
   fun addGroup(grupo: RGroup) {
-    for (i in 0 until grupo.countElements()) {
+    for (i in 0 until grupo.elements.size) {
       addElement(grupo.elements[i])
     }
   }
@@ -196,7 +187,7 @@ class RGroup : RGeomElem {
   @Throws(RuntimeException::class)
   fun toMeshGroup(): RGroup {
     val result = RGroup()
-    for (i in 0 until countElements()) {
+    for (i in 0 until elements.size) {
       result.addElement(elements[i].toMesh())
     }
     return result
@@ -212,7 +203,7 @@ class RGroup : RGeomElem {
   @Throws(RuntimeException::class)
   fun toPolygonGroup(): RGroup {
     val result = RGroup()
-    for (i in 0 until countElements()) {
+    for (i in 0 until elements.size) {
       val element = elements[i]
       if (element!!.type == GROUP) {
         val newElement: RGeomElem = (element as RGroup?)!!.toPolygonGroup()
@@ -235,7 +226,7 @@ class RGroup : RGeomElem {
   @Throws(RuntimeException::class)
   fun toShapeGroup(): RGroup {
     val result = RGroup()
-    for (i in 0 until countElements()) {
+    for (i in 0 until elements.size) {
       val element = elements[i]
       if (element!!.type == GROUP) {
         val newElement: RGeomElem = (element as RGroup?)!!.toShapeGroup()
@@ -256,9 +247,9 @@ class RGroup : RGeomElem {
     //throw new RuntimeException("Transforming a Group to a Mesh is not yet implemented.");
     val meshGroup = toMeshGroup()
     val result = RMesh()
-    for (i in 0 until countElements()) {
+    for (i in 0 until elements.size) {
       val currentMesh = meshGroup.elements[i] as RMesh?
-      for (j in 0 until currentMesh!!.countStrips()) {
+      for (j in 0 until currentMesh!!.strips.size) {
         result.addStrip(currentMesh.strips[j])
       }
     }
@@ -274,9 +265,9 @@ class RGroup : RGeomElem {
     //throw new RuntimeException("Transforming a Group to a Polygon is not yet implemented.");
     //RGroup polygonGroup = toPolygonGroup();
     val result = RPolygon()
-    for (i in 0 until countElements()) {
+    for (i in 0 until elements.size) {
       val currentPolygon = elements[i].toPolygon()
-      for (j in 0 until currentPolygon!!.countContours()) {
+      for (j in 0 until currentPolygon!!.contours.size) {
         result.addContour(currentPolygon.contours[j])
       }
     }
@@ -291,9 +282,9 @@ class RGroup : RGeomElem {
   override fun toShape(): RShape {
     //throw new RuntimeException("Transforming a Group to a Shape is not yet implemented.");
     val result = RShape()
-    for (i in 0 until countElements()) {
+    for (i in 0 until elements.size) {
       val currentShape = elements[i].toShape()
-      for (j in 0 until currentShape.countPaths()) {
+      for (j in 0 until currentShape.paths.size) {
         result.addPath(currentShape.paths[j])
       }
     }
@@ -377,7 +368,7 @@ class RGroup : RGeomElem {
 
     // Test for containment in elements
     var result = false
-    for (i in 0 until countElements()) {
+    for (i in 0 until elements.size) {
       result = result or elements[i].contains(p)
     }
     return result
@@ -457,7 +448,7 @@ class RGroup : RGeomElem {
     }
 
     // Add the elements after the cut point    
-    for (i in indOfElement + 1 until countElements()) {
+    for (i in indOfElement + 1 until elements.size) {
       when (elements[i].type) {
         MESH -> result[1].addElement(RMesh(
           (elements[i] as RMesh?)!!))
@@ -475,7 +466,7 @@ class RGroup : RGeomElem {
 
   fun splitPaths(t: Float): Array<RGroup> {
     val result = Array(2) { RGroup() }
-    for (i in 0 until countElements()) {
+    for (i in 0 until elements.size) {
       val element = elements[i]
       when (element.type) {
         GROUP -> {
@@ -505,7 +496,7 @@ class RGroup : RGeomElem {
     if (t == 0f || t == 1f) {
       return
     }
-    for (i in 0 until countElements()) {
+    for (i in 0 until elements.size) {
       val element = elements[i]
       when (element.type) {
         GROUP -> (element as RGroup).insertHandleInPaths(t)
@@ -516,9 +507,9 @@ class RGroup : RGeomElem {
   }
 
   override fun calculateCurveLengths() {
-    lenCurves = FloatArray(countElements())
+    lenCurves = FloatArray(elements.size)
     lenCurve = 0f
-    for (i in 0 until countElements()) {
+    for (i in 0 until elements.size) {
       lenCurves[i] = elements[i].curveLength
       lenCurve += lenCurves[i]
     }
@@ -542,7 +533,7 @@ class RGroup : RGeomElem {
     val xmin = c.minX
     val xmax = c.maxX
     val ymax = c.maxY
-    val numElements = countElements()
+    val numElements = elements.size
     when (RG.adaptorType) {
       RG.BYPOINT -> {
         var i = 0

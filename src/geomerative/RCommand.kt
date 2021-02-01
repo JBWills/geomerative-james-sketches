@@ -243,13 +243,6 @@ class RCommand(
   }
 
   /**
-   * Use this to return the number of control points of the curve.
-   * @eexample countControlPoints
-   * @return int, the number of control points.
-   */
-  fun countControlPoints(): Int = controlPoints.size
-
-  /**
    * Use this to return the points on the curve.  It returns the points in the way of an array of RPoint.
    * @eexample getPoints
    * @return RPoint[], the vertices returned in an array.

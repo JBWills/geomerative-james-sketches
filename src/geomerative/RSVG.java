@@ -197,7 +197,7 @@ public class RSVG {
     result += styleToString(grp.style);
     result += ">\n";
 
-    for (int i = 0; i < grp.countElements(); i++) {
+    for (int i = 0; i < grp.elements.length; i++) {
       switch (grp.elements[i].getType()) {
         case RGeomElem.GROUP:
           result += groupToString((RGroup) grp.elements[i]);
@@ -232,14 +232,14 @@ public class RSVG {
     result += styleToString(shp.style);
     result += ">\n";
 
-    if (shp.countPaths() > 0) {
+    if (shp.paths.length > 0) {
       result += "<path ";
       result += "d=\"";
 
-      for (int i = 0; i < shp.countPaths(); i++) {
+      for (int i = 0; i < shp.paths.length; i++) {
         RPath sushp = shp.paths[i];
         boolean init = true;
-        for (int j = 0; j < sushp.countCommands(); j++) {
+        for (int j = 0; j < sushp.commands.length; j++) {
           RCommand cmd = sushp.commands[j];
 
           if (init) {
@@ -270,7 +270,7 @@ public class RSVG {
       result += "\"/>\n";
     }
 
-    for (int i = 0; i < shp.countChildren(); i++) {
+    for (int i = 0; i < shp.children.length; i++) {
       result += shapeToString(shp.children[i]);
     }
 
@@ -892,14 +892,22 @@ public class RSVG {
     //PApplet.println(tags);
 
     //build points
-    RPoint curp = new RPoint(0,
-      0);
-    RPoint relp = new RPoint(0,
-      0);
-    RPoint refp = new RPoint(0,
-      0);
-    RPoint strp = new RPoint(0,
-      0);
+    RPoint curp = new RPoint(
+      0,
+      0
+    );
+    RPoint relp = new RPoint(
+      0,
+      0
+    );
+    RPoint refp = new RPoint(
+      0,
+      0
+    );
+    RPoint strp = new RPoint(
+      0,
+      0
+    );
 
     char command = 'a';
 

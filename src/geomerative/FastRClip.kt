@@ -2015,7 +2015,7 @@ internal object FastRClip {
           npoly_node = poly_node.next
           if (poly_node.active != 0) {
             var contour: RContour
-            contour = if (result.countContours() > 0) {
+            contour = if (result.contours.size > 0) {
               result.contours[0]
             } else {
               RContour()
@@ -2056,7 +2056,7 @@ internal object FastRClip {
         val orig = RPolygon(result)
         result = RPolygon()
         //result = createNewPoly( polyClass );
-        for (i in 0 until orig.countContours())  //for( int i = 0; i < orig.getNumInnerPoly(); i++ )
+        for (i in 0 until orig.contours.size)  //for( int i = 0; i < orig.getNumInnerPoly(); i++ )
         {
           val inner = orig.contours[i]
           //RPolygon inner = orig.getInnerPoly(i);
@@ -2065,7 +2065,7 @@ internal object FastRClip {
             //result.add(inner);
           }
         }
-        for (i in 0 until orig.countContours())  //for( int i = 0; i < orig.getNumInnerPoly(); i++ )
+        for (i in 0 until orig.contours.size)  //for( int i = 0; i < orig.getNumInnerPoly(); i++ )
         {
           val inner = orig.contours[i]
           //RPolygon inner = orig.getInnerPoly(i);

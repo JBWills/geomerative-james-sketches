@@ -51,7 +51,7 @@ class RPath() : RGeomElem() {
    *
    * @eexample commands
    * @related RCommand
-   * @related countCommands ( )
+   * @related commands.size ( )
    */
   @JvmField var commands: Array<RCommand> = arrayOf()
 
@@ -104,7 +104,7 @@ class RPath() : RGeomElem() {
    * @eexample RPath
    */
   constructor(s: RPath) : this() {
-    val numCommands = s.countCommands()
+    val numCommands = s.commands.size
     if (numCommands != 0) {
       var prevPoint = RPoint(s.commands.first().startPoint)
       for (i in 0 until numCommands) {
@@ -121,17 +121,9 @@ class RPath() : RGeomElem() {
     addCommand(c)
   }
 
-  /**
-   * Use this method to count the number of commands in the contour.
-   *
-   * @return int, the number commands in the contour
-   * @eexample countCommands
-   */
-  fun countCommands(): Int = commands.size
-
   override val handles: Array<RPoint>
     get() {
-      val numCommands = countCommands()
+      val numCommands = commands.size
       if (numCommands == 0) return arrayOf()
 
       // Add the curve points of each command
@@ -216,9 +208,9 @@ class RPath() : RGeomElem() {
     }
 
   override fun calculateCurveLengths() {
-    lenCurves = FloatArray(countCommands())
+    lenCurves = FloatArray(commands.size)
     lenCurve = 0f
-    for (i in 0 until countCommands()) {
+    for (i in 0 until commands.size) {
       lenCurves[i] = commands[i].curveLength
       lenCurve += lenCurves[i]
     }
@@ -232,7 +224,7 @@ class RPath() : RGeomElem() {
    */
   override val tangents: Array<RPoint>
     get() {
-      val numCommands = countCommands()
+      val numCommands = commands.size
       if (numCommands == 0) {
         return arrayOf()
       }
@@ -285,7 +277,7 @@ class RPath() : RGeomElem() {
    * @return RPoint[], the intersection points returned in an array.
    */
   fun closestPoints(other: RCommand): RClosest? {
-    val numCommands = countCommands()
+    val numCommands = commands.size
     if (numCommands == 0) {
       return null
     }
@@ -329,7 +321,7 @@ class RPath() : RGeomElem() {
    * @eexample getPoint
    */
   override fun getPoint(t: Float): RPoint? {
-    val numCommands = countCommands()
+    val numCommands = commands.size
     if (commands.isEmpty()) return null
     if (t == 0.0f) return commands.first().getPoint(0f)
     if (t == 1.0f) return commands[numCommands - 1].getPoint(1f)
@@ -347,7 +339,7 @@ class RPath() : RGeomElem() {
    * @eexample getPoint
    */
   override fun getTangent(t: Float): RPoint? {
-    val numCommands = countCommands()
+    val numCommands = commands.size
     if (commands.isEmpty()) return null
     if (t == 0.0f) return commands.first().getTangent(0f)
     if (t == 1.0f) return commands[numCommands - 1].getTangent(1f)
@@ -443,7 +435,7 @@ class RPath() : RGeomElem() {
     if (t == 0f || t == 1f) {
       return
     }
-    val numCommands = countCommands()
+    val numCommands = commands.size
     var i = 0
     while (i < numCommands * 2) {
 
@@ -477,7 +469,7 @@ class RPath() : RGeomElem() {
    */
   fun split(t: Float): Array<RPath> {
     val result = mutableListOf<RPath>()
-    val numCommands = countCommands()
+    val numCommands = commands.size
     if (numCommands == 0) {
       return arrayOf()
     }
@@ -508,7 +500,7 @@ class RPath() : RGeomElem() {
     result[0].addCommand(RCommand(splittedCommands[0]))
     result[0].setStyle(this)
     result[1] = RPath()
-    for (i in indOfElement + 1 until countCommands()) {
+    for (i in indOfElement + 1 until commands.size) {
       result[1].addCommand(RCommand(commands[i]))
     }
     result[1].addCommand(RCommand(splittedCommands[1]))
@@ -527,7 +519,7 @@ class RPath() : RGeomElem() {
    * @eexample drawPath
    */
   override fun draw(g: PGraphics) {
-    countCommands()
+    commands.size
 
     // By default always draw with an adaptative segmentator
     val lastSegmentator = RCommand.segmentType
@@ -547,7 +539,7 @@ class RPath() : RGeomElem() {
   }
 
   override fun draw(g: PApplet) {
-    countCommands()
+    commands.size
 
     // By default always draw with an adaptative segmzentator
     val lastSegmentator = RCommand.segmentType
@@ -706,7 +698,7 @@ class RPath() : RGeomElem() {
   }
 
   override fun print() {
-    for (i in 0 until countCommands()) {
+    for (i in 0 until commands.size) {
       var commandType = ""
       when (commands[i].commandType) {
         RCommand.LINETO -> commandType = "LINETO"
@@ -749,11 +741,11 @@ class RPath() : RGeomElem() {
     }
     }
 
-    int numCommands = countCommands();
+    int numCommands = commands.size;
     if(numCommands!=0){
     commands.first().startPoint.transform(m);
     for(int i=0;i<numCommands-1;i++){
-    for(int j=0;j<commands[i].countControlPoints();j++){
+    for(int j=0;j<commands[i].controlPoints.size;j++){
     commands[i].controlPoints[j].transform(m);
     }
     commands[i].endPoint.transform(m);

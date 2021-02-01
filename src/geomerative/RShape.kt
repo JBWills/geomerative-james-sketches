@@ -79,8 +79,8 @@ open class RShape() : RGeomElem() {
     children = null, style = null)
 
   constructor(s: RShape) : this() {
-    paths = Array(s.countPaths()) { i -> s.paths[i].clone() }
-    children = Array(s.countChildren()) { i -> RShape(s.children[i]) }
+    paths = Array(s.paths.size) { i -> s.paths[i].clone() }
+    children = Array(s.children.size) { i -> RShape(s.children[i]) }
     setStyle(s)
   }
 
@@ -125,16 +125,6 @@ open class RShape() : RGeomElem() {
     }
 
   /**
-   * Use this method to count the number of paths in the shape.
-   *
-   * @eexample countPaths
-   * @related addPath ( )
-   */
-  fun countPaths(): Int = paths.size
-
-  fun countChildren(): Int = children.size
-
-  /**
    * Use this method to add a new shape.  The paths of the shape we are adding will simply be added to the current shape.
    *
    * @param s RShape, the shape to be added.
@@ -143,7 +133,7 @@ open class RShape() : RGeomElem() {
    * @related addMoveTo ( )
    * @invisible
    */
-  fun addShape(s: RShape) = repeat(s.countPaths()) { append(s.paths[it]) }
+  fun addShape(s: RShape) = repeat(s.paths.size) { append(s.paths[it]) }
 
   /**
    * Use this method to create a new path.  The first point of the new path will be set to (0,0).  Use addMoveTo ( ) in order to add a new path with a different first point.
@@ -198,7 +188,7 @@ open class RShape() : RGeomElem() {
       return
     }
 
-    if (paths[currentPath].countCommands() == 0) {
+    if (paths[currentPath].commands.size == 0) {
       paths[currentPath].lastPoint = RPoint(endx, endy)
     } else {
       append(RPath(endx, endy))
@@ -388,10 +378,10 @@ open class RShape() : RGeomElem() {
     val indAndAdv = indAndAdvAt(t)
     val indOfElement = indAndAdv[0].toInt()
     val advOfElement = indAndAdv[1]
-    return if (indOfElement < countPaths()) {
+    return if (indOfElement < paths.size) {
       paths[indOfElement].getPoint(advOfElement)
     } else {
-      children[indOfElement - countPaths()].getPoint(advOfElement)
+      children[indOfElement - paths.size].getPoint(advOfElement)
     }
   }
 
@@ -414,10 +404,10 @@ open class RShape() : RGeomElem() {
     val indAndAdv = indAndAdvAt(t)
     val indOfElement = indAndAdv[0].toInt()
     val advOfElement = indAndAdv[1]
-    return if (indOfElement < countPaths()) {
+    return if (indOfElement < paths.size) {
       paths[indOfElement].getTangent(advOfElement)
     } else {
-      children[indOfElement - countPaths()].getTangent(advOfElement)
+      children[indOfElement - paths.size].getTangent(advOfElement)
     }
   }
 
@@ -554,10 +544,10 @@ open class RShape() : RGeomElem() {
     val indAndAdv = indAndAdvAt(t)
     val indOfElement = indAndAdv[0].toInt()
     val advOfElement = indAndAdv[1]
-    if (indOfElement < countPaths()) {
+    if (indOfElement < paths.size) {
       paths[indOfElement].insertHandle(advOfElement)
     } else {
-      children[indOfElement - countPaths()].insertHandle(advOfElement)
+      children[indOfElement - paths.size].insertHandle(advOfElement)
     }
 
     // Clear the cache
@@ -576,7 +566,7 @@ open class RShape() : RGeomElem() {
     if (t == 0f || t == 1f) {
       return
     }
-    val numPaths = countPaths()
+    val numPaths = paths.size
     if (numPaths == 0) {
       return
     }
@@ -611,7 +601,7 @@ open class RShape() : RGeomElem() {
     val indAndAdv = indAndAdvAt(t)
     var indOfElement = indAndAdv[0].toInt()
     val advOfElement = indAndAdv[1]
-    return if (indOfElement < countPaths()) {
+    return if (indOfElement < paths.size) {
       val splittedShapes = paths[indOfElement].split(advOfElement)
       result[0] = RShape()
       for (i in 0 until indOfElement) {
@@ -621,7 +611,7 @@ open class RShape() : RGeomElem() {
       result[0].setStyle(this)
       result[1] = RShape()
       result[1].addPath(RPath(splittedShapes[1]))
-      for (i in indOfElement + 1 until countPaths()) {
+      for (i in indOfElement + 1 until paths.size) {
         result[1].addPath(RPath(paths[i]))
       }
       children.forEachIndexed { i, child ->
@@ -630,7 +620,7 @@ open class RShape() : RGeomElem() {
       result[1].setStyle(this)
       result.toTypedArray()
     } else {
-      indOfElement -= countPaths()
+      indOfElement -= paths.size
 
       // Add the elements before the cut point
       for (i in 0 until indOfElement) {
@@ -643,7 +633,7 @@ open class RShape() : RGeomElem() {
       result[1].addChild(RShape(splittedChild[1]))
 
       // Add the elements after the cut point
-      for (i in indOfElement + 1 until countChildren()) {
+      for (i in indOfElement + 1 until children.size) {
         result[1].addChild(RShape(children[i]))
       }
       result[0].setStyle(this)
@@ -741,8 +731,8 @@ open class RShape() : RGeomElem() {
   }
 
   fun polygonClosestPoints(other: RShape): RClosest {
-    val numChildren = countChildren()
-    val numPaths = countPaths()
+    val numChildren = children.size
+    val numPaths = paths.size
     val result = RClosest()
 
 
@@ -773,7 +763,7 @@ open class RShape() : RGeomElem() {
     val c = this.bounds
     val xmin = c.minX
     val xmax = c.maxX
-    val numChildren = countChildren()
+    val numChildren = children.size
     when (RG.adaptorType) {
       RG.BYPOINT -> {
         val ps = this.handles
@@ -849,13 +839,13 @@ open class RShape() : RGeomElem() {
   }
 
   override fun print() {
-    println("paths [count " + countPaths() + "]: ")
+    println("paths [count " + paths.size + "]: ")
     paths.forEachIndexed { i, path ->
       println("--- path $i ---")
       path.print()
       println("---------------")
     }
-    println("children [count " + countChildren() + "]: ")
+    println("children [count " + children.size + "]: ")
     children.forEachIndexed { i, child ->
       println("--- child $i ---")
       child.print()
@@ -905,15 +895,15 @@ open class RShape() : RGeomElem() {
   // --- Private Methods ---
   // ----------------------
   override fun calculateCurveLengths() {
-    lenCurves = FloatArray(countPaths() + countChildren())
+    lenCurves = FloatArray(paths.size + children.size)
     lenCurve = 0f
     paths.forEachIndexed { i, path ->
       lenCurves[i] = path.curveLength
       lenCurve += lenCurves[i]
     }
     children.forEachIndexed { i, child ->
-      lenCurves[i + countPaths()] = child.curveLength
-      lenCurve += lenCurves[i + countPaths()]
+      lenCurves[i + paths.size] = child.curveLength
+      lenCurve += lenCurves[i + paths.size]
     }
   }
 
@@ -952,7 +942,7 @@ open class RShape() : RGeomElem() {
   }
 
   private fun drawUsingInternalTesselator(g: PGraphics) {
-    val numPaths = countPaths()
+    val numPaths = paths.size
     if (numPaths != 0) {
       if (isIn(g)) {
 
@@ -1026,7 +1016,7 @@ open class RShape() : RGeomElem() {
   }
 
   private fun drawUsingInternalTesselator(p: PApplet) {
-    val numPaths = countPaths()
+    val numPaths = paths.size
     if (numPaths != 0) {
       if (isIn(p)) {
         // Save the information about the current context
@@ -1103,7 +1093,7 @@ open class RShape() : RGeomElem() {
   }
 
   private fun drawUsingBreakShape(g: PGraphics) {
-    val numPaths = countPaths()
+    val numPaths = paths.size
     if (numPaths != 0) {
       if (isIn(g)) {
         var closed = false
@@ -1115,7 +1105,7 @@ open class RShape() : RGeomElem() {
           }
           val path = paths[i]
           closed = closed or path.closed
-          for (j in 0 until path.countCommands()) {
+          for (j in 0 until path.commands.size) {
             val pnts = path.commands[j].handles
             if (j == 0) {
               g.vertex(
@@ -1156,7 +1146,7 @@ open class RShape() : RGeomElem() {
   }
 
   private fun drawUsingBreakShape(g: PApplet) {
-    val numPaths = countPaths()
+    val numPaths = paths.size
     if (numPaths != 0) {
       if (isIn(g)) {
         var closed = false
@@ -1166,7 +1156,7 @@ open class RShape() : RGeomElem() {
           if (useContours && i > 0) g.beginContour()
           val path = paths[i]
           closed = closed or path.closed
-          for (j in 0 until path.countCommands()) {
+          for (j in 0 until path.commands.size) {
             val pnts = path.commands[j].handles
             if (j == 0) {
               g.vertex(pnts[0].x, pnts[0].y)

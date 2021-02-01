@@ -1924,13 +1924,13 @@ internal object RClip {
     val c = RPolygon()
     val s_clean = s.removeOpenContours()
     /*
-    for(int i=0; i<s_clean.countContours(); i++)
+    for(int i=0; i<s_clean.contours.size; i++)
       {
         System.out.println("  " + s_clean.contours[i]);
-        System.out.println("Contour " + (i + 1) + "/" + s_clean.countContours() + ":");
-        for(int j=0;j<s_clean.contours[i].countPoints();j++)
+        System.out.println("Contour " + (i + 1) + "/" + s_clean.contours.size + ":");
+        for(int j=0;j<s_clean.contours[i].points.size;j++)
           {
-            System.out.println("  Point " + (j + 1) + "/" + s_clean.contours[i].countPoints() + ":" + "(" + s_clean.contours[i].points[j].x + ", " + s_clean.contours[i].points[j].y + ")");
+            System.out.println("  Point " + (j + 1) + "/" + s_clean.contours[i].points.size + ":" + "(" + s_clean.contours[i].points[j].x + ", " + s_clean.contours[i].points[j].y + ")");
           }
       }
     */
@@ -2838,7 +2838,7 @@ internal object RClip {
           npoly_node = poly_node.next
           if (poly_node.active != 0) {
             var contour: RContour
-            contour = (if (result.countContours() > 0) result.contours[0] else RContour())
+            contour = (if (result.contours.size > 0) result.contours[0] else RContour())
             //RPolygon poly = result ;
             if (num_contours > 0) {
               contour = RContour()
@@ -2872,7 +2872,7 @@ internal object RClip {
         val orig = RPolygon(result)
         result = RPolygon()
         //result = createNewPoly( polyClass );
-        for (i in 0 until orig.countContours())  //for( int i = 0 ; i < orig.getNumInnerPoly() ; i++ )
+        for (i in 0 until orig.contours.size)  //for( int i = 0 ; i < orig.getNumInnerPoly() ; i++ )
         {
           val inner = orig.contours[i]
           //RPolygon inner = orig.getInnerPoly(i);
@@ -2881,7 +2881,7 @@ internal object RClip {
             //result.add(inner);
           }
         }
-        for (i in 0 until orig.countContours())  //for( int i = 0 ; i < orig.getNumInnerPoly() ; i++ )
+        for (i in 0 until orig.contours.size)  //for( int i = 0 ; i < orig.getNumInnerPoly() ; i++ )
         {
           val inner = orig.contours[i]
           //RPolygon inner = orig.getInnerPoly(i);

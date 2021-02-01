@@ -64,13 +64,6 @@ class RContour : RGeomElem {
   @JvmField var closed = true
 
   /**
-   * Use this method to count the number of points in the contour.
-   * @eexample countPoints
-   * @return int, the number points in the contour
-   */
-  fun countPoints(): Int = points.size
-
-  /**
    * Create a countour given an array of points.
    * @param  contourpoints  the points of the new contour
    * @invisible
@@ -149,7 +142,7 @@ class RContour : RGeomElem {
 
   override fun print() {
     println("contour: ")
-    for (i in 0 until countPoints()) {
+    for (i in 0 until points.size) {
       println("---  point $i ---")
       points[i].print()
       println("---------------")

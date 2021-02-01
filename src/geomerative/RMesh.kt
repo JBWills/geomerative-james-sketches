@@ -73,20 +73,12 @@ import processing.core.PGraphics
    * @param m  the object of which to make a copy
    */
   constructor(m: RMesh) {
-    for (i in 0 until m.countStrips()) {
+    for (i in 0 until m.strips.size) {
       append(RStrip(m.strips[i]))
     }
     type = MESH
     setStyle(m)
   }
-
-  /**
-   * Use this method to count the number of strips in the mesh.
-   * @eexample countStrips
-   * @return int, the number strips in the mesh
-   * @related addStrip ( )
-   */
-  fun countStrips(): Int = strips.size
 
   /**
    * Add a new strip.

@@ -47,7 +47,6 @@ class RStrip {
    *
    * @eexample vertices
    * @related RPoint
-   * @related countVertices ( )
    * @related addVertex ( )
    */
   var points: Array<RPoint> = arrayOf()
@@ -66,14 +65,6 @@ class RStrip {
   }
 
   constructor()
-
-  /**
-   * Use this method to count the number of vertices in the strip.
-   *
-   * @return int, the number vertices in the strip
-   * @eexample countVertices
-   */
-  fun countVertices(): Int = points.size
 
   /**
    * Use this method to draw the strip.

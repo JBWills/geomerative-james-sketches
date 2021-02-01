@@ -64,7 +64,7 @@ class RPolygon : RGeomElem {
   /**
    * @invisible
    */
-  override var type = POLYGON
+  override val type = POLYGON
 
   /**
    * Array of RContour objects holding the contours of the polygon.
@@ -86,10 +86,7 @@ class RPolygon : RGeomElem {
    * @eexample createPolygon
    */
   constructor(p: RPolygon) {
-    p.contours.forEach { contour ->
-      append(RContour(contour))
-    }
-    type = POLYGON
+    append(p.contours)
     setStyle(p)
   }
 
@@ -118,7 +115,6 @@ class RPolygon : RGeomElem {
    */
   constructor(contours: Array<RContour>) {
     this.contours = contours
-    type = POLYGON
   }
 
   /**
@@ -144,15 +140,6 @@ class RPolygon : RGeomElem {
       }
       return bestCentroid
     }
-
-  /**
-   * Use this method to count the number of contours in the polygon.
-   *
-   * @return int  the number contours in the polygon
-   * @eexample countContours
-   * @related addContour ( )
-   */
-  fun countContours(): Int = contours.size
 
   /**
    * Add a new contour to the polygon.
@@ -247,7 +234,7 @@ class RPolygon : RGeomElem {
 
   override fun print() {
     println("polygon: ")
-    for (i in 0 until countContours()) {
+    for (i in 0 until contours.size) {
       println("---  contour $i ---")
       contours[i].print()
       println("---------------")
@@ -262,7 +249,7 @@ class RPolygon : RGeomElem {
    * @invisible
    */
   fun removeOpenContours(): RPolygon = RPolygon().apply {
-    contours.forEach { contour -> if (contour.countPoints() > 3) addContour(contour) }
+    contours.forEach { contour -> if (contour.points.size > 3) addContour(contour) }
     setStyle(this)
   }
 
@@ -336,7 +323,7 @@ class RPolygon : RGeomElem {
    * @related draw ( )
    */
   override fun draw(g: PGraphics) {
-    val numContours = countContours()
+    val numContours = contours.size
     if (numContours != 0) {
       if (isIn(g)) {
         if (!RG.ignoreStyles) {
@@ -390,7 +377,7 @@ class RPolygon : RGeomElem {
   }
 
   override fun draw(g: PApplet) {
-    val numContours = countContours()
+    val numContours = contours.size
     if (numContours != 0) {
       if (isIn(g)) {
         if (!RG.ignoreStyles) {
@@ -649,8 +636,12 @@ class RPolygon : RGeomElem {
     contours[polyIndex].isContributing = contributes
   }
 
-  private fun append(nextcontour: RContour) {
-    contours += nextcontour
+  private fun append(newContours: Array<RContour>) {
+    contours += newContours
+  }
+
+  private fun append(newContour: RContour) {
+    contours += newContour
   }
 
   override fun toString(): String {

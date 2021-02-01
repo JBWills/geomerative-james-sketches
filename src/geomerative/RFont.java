@@ -186,7 +186,7 @@ public class RFont implements PConstants {
    */
   public RShape toShape(char character) {
     RGroup grp = toGroup(Character.toString(character));
-    if (grp.countElements() > 0) return (RShape) (grp.elements[0]);
+    if (grp.elements.length > 0) return (RShape) (grp.elements[0]);
     return new RShape();
   }
 
