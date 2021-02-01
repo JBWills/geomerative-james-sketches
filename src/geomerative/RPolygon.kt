@@ -261,14 +261,12 @@ class RPolygon : RGeomElem {
   /**
    * @invisible
    */
-  override fun toShape(): RShape = RShape(
-    contours.mapArray { contour ->
-      RPath(contour.points).apply {
-        setStyle(contour)
-        if (contour.closed) addClose()
-      }
+  override fun toShape(): RShape = RShape(contours.mapArray { contour ->
+    RPath(contour.points).apply {
+      setStyle(contour)
+      if (contour.closed) addClose()
     }
-  ).apply { setStyle(this) }
+  }).apply { setStyle(this) }
 
   /**
    * Use this to return the points of the polygon.  It returns the points in the way of an array of RPoint.
@@ -669,10 +667,7 @@ class RPolygon : RGeomElem {
       val radiansPerStep = 2 * Math.PI / detail
 
       return RPolygon((0 until detail).map { i ->
-        RPoint(
-          radius * cos(i * radiansPerStep) + x,
-          radius * sin(i * radiansPerStep) + y
-        )
+        RPoint(radius * cos(i * radiansPerStep) + x, radius * sin(i * radiansPerStep) + y)
       }.toTypedArray())
     }
 
@@ -717,15 +712,9 @@ class RPolygon : RGeomElem {
 
       val points = (0 until numPoints step 2).flatMap { i ->
         listOf(
-          RPoint(
-            radiusBig * cos(i * radiansPerStep) + x,
-            radiusBig * sin(i * radiansPerStep) + y
-          ),
-          RPoint(
-            radiusSmall * cos(i * radiansPerStep) + x,
-            radiusSmall * sin(i * radiansPerStep) + y
-          )
-        )
+          RPoint(radiusBig * cos(i * radiansPerStep) + x, radiusBig * sin(i * radiansPerStep) + y),
+          RPoint(radiusSmall * cos(i * radiansPerStep) + x,
+            radiusSmall * sin(i * radiansPerStep) + y))
       }
       return RPolygon(points.toTypedArray())
     }
@@ -754,13 +743,9 @@ class RPolygon : RGeomElem {
       val radiansPerStep = 2 * Math.PI / detail
 
       val (inner, outer) = (0 until detail).map { i ->
-        RPoint(
-          radiusSmall * cos(i * radiansPerStep) + x,
-          radiusSmall * sin(i * radiansPerStep) + y
-        ) to RPoint(
-          radiusBig * cos(i * radiansPerStep) + x,
-          radiusBig * sin(i * radiansPerStep) + y
-        )
+        RPoint(radiusSmall * cos(i * radiansPerStep) + x,
+          radiusSmall * sin(i * radiansPerStep) + y) to RPoint(
+          radiusBig * cos(i * radiansPerStep) + x, radiusBig * sin(i * radiansPerStep) + y)
       }.unzip()
 
       return RPolygon().apply {

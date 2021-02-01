@@ -264,7 +264,7 @@ class RPath() : RGeomElem() {
 
     other.commands.forEach { otherCommand ->
       commands.forEach { command ->
-        result.addAll(command.intersectionPoints(otherCommand) ?: arrayOf())
+        result.addAll(command.intersectionPoints(otherCommand))
       }
     }
 
@@ -371,16 +371,15 @@ class RPath() : RGeomElem() {
     }
 
     // Test for containment in path
-    val verts = points ?: return false
+    val verts = points
     val nvert = verts.size
     var j = 0
     var c = false
     var i = 0
     j = nvert - 1
     while (i < nvert) {
-      if (verts[i].y > testy != verts[j].y > testy &&
-        testx < (verts[j].x - verts[i].x) * (testy - verts[i].y) / (verts[j].y - verts[i].y) + verts[i].x
-      ) c = !c
+      if (verts[i].y > testy != verts[j].y > testy && testx < (verts[j].x - verts[i].x) * (testy - verts[i].y) / (verts[j].y - verts[i].y) + verts[i].x) c =
+        !c
       j = i++
     }
     return c
@@ -410,14 +409,8 @@ class RPath() : RGeomElem() {
     extract(indOfElement)
 
     // Insert the splittedCommands
-    insert(
-      splittedCommands[1],
-      indOfElement
-    )
-    insert(
-      splittedCommands[0],
-      indOfElement
-    )
+    insert(splittedCommands[1], indOfElement)
+    insert(splittedCommands[0], indOfElement)
 
     // Clear the cache
     lenCurves = floatArrayOf()
@@ -524,13 +517,10 @@ class RPath() : RGeomElem() {
     // By default always draw with an adaptative segmentator
     val lastSegmentator = RCommand.segmentType
     RCommand.setSegmentator(RCommand.ADAPTATIVE)
-    val points = points ?: return
+    val points = points
     g.beginShape()
     for (i in points.indices) {
-      g.vertex(
-        points[i].x,
-        points[i].y
-      )
+      g.vertex(points[i].x, points[i].y)
     }
     g.endShape(if (closed) PConstants.CLOSE else PConstants.OPEN)
 
@@ -551,10 +541,7 @@ class RPath() : RGeomElem() {
     }
     g.beginShape()
     for (i in points.indices) {
-      g.vertex(
-        points[i].x,
-        points[i].y
-      )
+      g.vertex(points[i].x, points[i].y)
     }
     g.endShape(if (closed) PConstants.CLOSE else PConstants.OPEN)
 
@@ -582,12 +569,7 @@ class RPath() : RGeomElem() {
    * @eexample addBezierTo
    */
   fun addBezierTo(cp1: RPoint, cp2: RPoint, end: RPoint) {
-    addCommand(RCommand.createBezier4(
-      lastPoint!!,
-      cp1,
-      cp2,
-      end
-    ))
+    addCommand(RCommand.createBezier4(lastPoint!!, cp1, cp2, end))
   }
 
   /**
@@ -605,11 +587,7 @@ class RPath() : RGeomElem() {
     val cp1 = RPoint(cp1x, cp1y)
     val cp2 = RPoint(cp2x, cp2y)
     val end = RPoint(endx, endy)
-    addBezierTo(
-      cp1,
-      cp2,
-      end
-    )
+    addBezierTo(cp1, cp2, end)
   }
 
   /**
@@ -646,8 +624,7 @@ class RPath() : RGeomElem() {
    */
   fun addLineTo(end: RPoint) {
 
-    if (lastPoint == null)
-      lastPoint?.let { addCommand(createLine(it, end)) }
+    if (lastPoint == null) lastPoint?.let { addCommand(createLine(it, end)) }
   }
 
   /**
@@ -771,7 +748,8 @@ class RPath() : RGeomElem() {
     var accumulatedAdvancement = lengthsCurves[indOfElement] / lengthCurve
     var prevAccumulatedAdvancement = 0f
 
-    /* Find in what command the advancement point is  */while (t > accumulatedAdvancement) {
+    /* Find in what command the advancement point is  */
+    while (t > accumulatedAdvancement) {
       indOfElement++
       prevAccumulatedAdvancement = accumulatedAdvancement
       accumulatedAdvancement += lengthsCurves[indOfElement] / lengthCurve

@@ -154,12 +154,7 @@ internal object RClip {
    */
   @JvmStatic
   fun union(p1: RPolygon, p2: RPolygon): RPolygon {
-    return clip(
-      OperationType.GPC_UNION,
-      p1,
-      p2,
-      RPolygon::class.java
-    )
+    return clip(OperationType.GPC_UNION, p1, p2, RPolygon::class.java)
   }
 
   /**
@@ -171,12 +166,7 @@ internal object RClip {
    */
   @JvmStatic
   fun xor(p1: RPolygon, p2: RPolygon): RPolygon {
-    return clip(
-      OperationType.GPC_XOR,
-      p1,
-      p2,
-      RPolygon::class.java
-    )
+    return clip(OperationType.GPC_XOR, p1, p2, RPolygon::class.java)
   }
 
   /**
@@ -188,12 +178,7 @@ internal object RClip {
    */
   @JvmStatic
   fun diff(p1: RPolygon, p2: RPolygon): RPolygon {
-    return clip(
-      OperationType.GPC_DIFF,
-      p1,
-      p2,
-      RPolygon::class.java
-    )
+    return clip(OperationType.GPC_DIFF, p1, p2, RPolygon::class.java)
   }
 
   /**
@@ -203,12 +188,7 @@ internal object RClip {
    */
   @JvmStatic
   fun update(p1: RPolygon): RPolygon {
-    return clip(
-      OperationType.GPC_DIFF,
-      p1,
-      RPolygon(),
-      RPolygon::class.java
-    )
+    return clip(OperationType.GPC_DIFF, p1, RPolygon(), RPolygon::class.java)
   }
   // -----------------------
   // --- Private Methods ---
@@ -232,45 +212,25 @@ internal object RClip {
     op: OperationType, subj: RPolygon, clip: RPolygon, polyClass: Class<*>,
   ): RPolygon {
     if (RG.useFastClip) {
-      return FastRClip.clip(
-        op,
-        subj,
-        clip,
-        polyClass
-      )
+      return FastRClip.clip(op, subj, clip, polyClass)
     }
     var result = createNewPoly(polyClass)
 
     /* Test for trivial NULL result cases */
-    if (subj.isEmpty && clip.isEmpty ||
-      subj.isEmpty && (op === OperationType.GPC_INT || op === OperationType.GPC_DIFF) ||
-      clip.isEmpty && op === OperationType.GPC_INT
-    ) {
+    if (subj.isEmpty && clip.isEmpty || subj.isEmpty && (op === OperationType.GPC_INT || op === OperationType.GPC_DIFF) || clip.isEmpty && op === OperationType.GPC_INT) {
       return result
     }
 
     /* Identify potentialy contributing contours */
-    if ((op === OperationType.GPC_INT || op === OperationType.GPC_DIFF) &&
-      !subj.isEmpty && !clip.isEmpty
-    ) {
-      minimax_test(
-        subj,
-        clip,
-        op
-      )
+    if ((op === OperationType.GPC_INT || op === OperationType.GPC_DIFF) && !subj.isEmpty && !clip.isEmpty) {
+      minimax_test(subj, clip, op)
     }
 
     /* Build LMT */
     val lmt_table = LmtTable()
     val sbte = ScanBeamTreeEntries()
     if (!subj.isEmpty) {
-      build_lmt(
-        lmt_table,
-        sbte,
-        subj,
-        SUBJ,
-        op
-      )
+      build_lmt(lmt_table, sbte, subj, SUBJ, op)
     }
     if (DEBUG) {
       println()
@@ -278,13 +238,7 @@ internal object RClip {
       lmt_table.print()
     }
     if (!clip.isEmpty) {
-      build_lmt(
-        lmt_table,
-        sbte,
-        clip,
-        CLIP,
-        op
-      )
+      build_lmt(lmt_table, sbte, clip, CLIP, op)
     }
     if (DEBUG) {
       println()
@@ -334,10 +288,7 @@ internal object RClip {
           /* Add edges starting at this local minimum to the AET */
           var edge = local_min.first_bound
           while (edge != null) {
-            add_edge_to_aet(
-              aet,
-              edge
-            )
+            add_edge_to_aet(aet, edge)
             edge = edge.next_bound
           }
           local_min = local_min.next
@@ -354,8 +305,7 @@ internal object RClip {
       var e1 = aet.top_node
 
       /* Set up bundle fields of first edge */
-      aet.top_node!!.bundle[ABOVE][aet.top_node!!.type] =
-        if (aet.top_node!!.top.y != yb) 1 else 0
+      aet.top_node!!.bundle[ABOVE][aet.top_node!!.type] = if (aet.top_node!!.top.y != yb) 1 else 0
       aet.top_node!!.bundle[ABOVE][if (aet.top_node!!.type == 0) 1 else 0] = 0
       aet.top_node!!.bstate[ABOVE] = BundleState.UNBUNDLED
       var next_edge = aet.top_node!!.next
@@ -364,21 +314,13 @@ internal object RClip {
         val ne_type_opp = if (next_edge.type == 0) 1 else 0 //next edge type opposite
 
         /* Set up bundle fields of next edge */
-        next_edge.bundle[ABOVE][ne_type] =
-          if (next_edge.top.y != yb) 1 else 0
+        next_edge.bundle[ABOVE][ne_type] = if (next_edge.top.y != yb) 1 else 0
         next_edge.bundle[ABOVE][ne_type_opp] = 0
         next_edge.bstate[ABOVE] = BundleState.UNBUNDLED
 
         /* Bundle edges above the scanbeam boundary if they coincide */
         if (next_edge.bundle[ABOVE][ne_type] == 1) {
-          if (EQ(
-              e0!!.xb,
-              next_edge.xb
-            ) && EQ(
-              e0.dx,
-              next_edge.dx
-            ) && e0.top.y != yb
-          ) {
+          if (EQ(e0!!.xb, next_edge.xb) && EQ(e0.dx, next_edge.dx) && e0.top.y != yb) {
             next_edge.bundle[ABOVE][ne_type] =
               next_edge.bundle[ABOVE][ne_type] xor e0.bundle[ABOVE][ne_type]
             next_edge.bundle[ABOVE][ne_type_opp] = e0.bundle[ABOVE][ne_type_opp]
@@ -416,20 +358,15 @@ internal object RClip {
             var tl = 0
             /* Determine contributing status and quadrant occupancies */
             if (op === OperationType.GPC_DIFF || op === OperationType.GPC_INT) {
-              contributing = exists[CLIP] != 0 && (parity[SUBJ] != 0 || horiz[SUBJ] != 0) ||
-                exists[SUBJ] != 0 && (parity[CLIP] != 0 || horiz[CLIP] != 0) ||
-                exists[CLIP] != 0 && exists[SUBJ] != 0 && parity[CLIP] == parity[SUBJ]
+              contributing =
+                exists[CLIP] != 0 && (parity[SUBJ] != 0 || horiz[SUBJ] != 0) || exists[SUBJ] != 0 && (parity[CLIP] != 0 || horiz[CLIP] != 0) || exists[CLIP] != 0 && exists[SUBJ] != 0 && parity[CLIP] == parity[SUBJ]
               br = if (parity[CLIP] != 0 && parity[SUBJ] != 0) 1 else 0
-              bl = if (parity[CLIP] xor edge!!.bundle[ABOVE][CLIP] != 0 &&
-                parity[SUBJ] xor edge!!.bundle[ABOVE][SUBJ] != 0
-              ) 1 else 0
-              tr = if ((parity[CLIP] xor if (horiz[CLIP] != HState.NH) 1 else 0) != 0 &&
-                (parity[SUBJ] xor if (horiz[SUBJ] != HState.NH) 1 else 0) != 0
-              ) 1 else 0
+              bl =
+                if (parity[CLIP] xor edge!!.bundle[ABOVE][CLIP] != 0 && parity[SUBJ] xor edge!!.bundle[ABOVE][SUBJ] != 0) 1 else 0
+              tr =
+                if ((parity[CLIP] xor if (horiz[CLIP] != HState.NH) 1 else 0) != 0 && (parity[SUBJ] xor if (horiz[SUBJ] != HState.NH) 1 else 0) != 0) 1 else 0
               tl =
-                if (parity[CLIP] xor (if (horiz[CLIP] != HState.NH) 1 else 0) xor edge!!.bundle[BELOW][CLIP] != 0 &&
-                  parity[SUBJ] xor (if (horiz[SUBJ] != HState.NH) 1 else 0) xor edge!!.bundle[BELOW][SUBJ] != 0
-                ) 1 else 0
+                if (parity[CLIP] xor (if (horiz[CLIP] != HState.NH) 1 else 0) xor edge!!.bundle[BELOW][CLIP] != 0 && parity[SUBJ] xor (if (horiz[SUBJ] != HState.NH) 1 else 0) xor edge!!.bundle[BELOW][SUBJ] != 0) 1 else 0
             } else if (op === OperationType.GPC_XOR) {
               contributing = exists[CLIP] != 0 || exists[SUBJ] != 0
               br = parity[CLIP] xor parity[SUBJ]
@@ -438,22 +375,17 @@ internal object RClip {
               tr =
                 parity[CLIP] xor if (horiz[CLIP] != HState.NH) 1 else 0 xor (parity[SUBJ] xor if (horiz[SUBJ] != HState.NH) 1 else 0)
               tl =
-                (parity[CLIP] xor (if (horiz[CLIP] != HState.NH) 1 else 0) xor edge!!.bundle[BELOW][CLIP]
-                  xor (parity[SUBJ] xor (if (horiz[SUBJ] != HState.NH) 1 else 0) xor edge!!.bundle[BELOW][SUBJ]))
+                (parity[CLIP] xor (if (horiz[CLIP] != HState.NH) 1 else 0) xor edge!!.bundle[BELOW][CLIP] xor (parity[SUBJ] xor (if (horiz[SUBJ] != HState.NH) 1 else 0) xor edge!!.bundle[BELOW][SUBJ]))
             } else if (op === OperationType.GPC_UNION) {
-              contributing = exists[CLIP] != 0 && (parity[SUBJ] == 0 || horiz[SUBJ] != 0) ||
-                exists[SUBJ] != 0 && (parity[CLIP] == 0 || horiz[CLIP] != 0) ||
-                exists[CLIP] != 0 && exists[SUBJ] != 0 && parity[CLIP] == parity[SUBJ]
+              contributing =
+                exists[CLIP] != 0 && (parity[SUBJ] == 0 || horiz[SUBJ] != 0) || exists[SUBJ] != 0 && (parity[CLIP] == 0 || horiz[CLIP] != 0) || exists[CLIP] != 0 && exists[SUBJ] != 0 && parity[CLIP] == parity[SUBJ]
               br = if (parity[CLIP] != 0 || parity[SUBJ] != 0) 1 else 0
               bl =
                 if (parity[CLIP] xor edge!!.bundle[ABOVE][CLIP] != 0 || parity[SUBJ] xor edge!!.bundle[ABOVE][SUBJ] != 0) 1 else 0
-              tr = if ((parity[CLIP] xor if (horiz[CLIP] != HState.NH) 1 else 0) != 0 ||
-                (parity[SUBJ] xor if (horiz[SUBJ] != HState.NH) 1 else 0) != 0
-              ) 1 else 0
+              tr =
+                if ((parity[CLIP] xor if (horiz[CLIP] != HState.NH) 1 else 0) != 0 || (parity[SUBJ] xor if (horiz[SUBJ] != HState.NH) 1 else 0) != 0) 1 else 0
               tl =
-                if (parity[CLIP] xor (if (horiz[CLIP] != HState.NH) 1 else 0) xor edge!!.bundle[BELOW][CLIP] != 0 ||
-                  parity[SUBJ] xor (if (horiz[SUBJ] != HState.NH) 1 else 0) xor edge!!.bundle[BELOW][SUBJ] != 0
-                ) 1 else 0
+                if (parity[CLIP] xor (if (horiz[CLIP] != HState.NH) 1 else 0) xor edge!!.bundle[BELOW][CLIP] != 0 || parity[SUBJ] xor (if (horiz[SUBJ] != HState.NH) 1 else 0) xor edge!!.bundle[BELOW][SUBJ] != 0) 1 else 0
             } else {
               throw IllegalStateException("Unknown op")
             }
@@ -473,12 +405,7 @@ internal object RClip {
             }
             if (contributing) {
               val xb = edge!!.xb
-              val vclass = VertexType.getType(
-                tr,
-                tl,
-                br,
-                bl
-              )
+              val vclass = VertexType.getType(tr, tl, br, bl)
               when (vclass) {
                 VertexType.EMN, VertexType.IMN -> {
                   edge!!.outp[ABOVE] = out_poly.add_local_min(xb, yb)
@@ -531,10 +458,7 @@ internal object RClip {
                 }
                 VertexType.IMM -> {
                   if (xb != px) {
-                    cf!!.add_right(
-                      xb,
-                      yb
-                    )
+                    cf!!.add_right(xb, yb)
                     px = xb
                   }
                   out_poly.merge_left(cf!!, edge!!.outp[BELOW]!!)
@@ -547,23 +471,18 @@ internal object RClip {
                     cf!!.add_left(xb, yb)
                     px = xb
                   }
-                  out_poly.merge_right(
-                    cf,
-                    edge!!.outp[BELOW]
-                  )
+                  out_poly.merge_right(cf, edge!!.outp[BELOW])
                   edge!!.outp[BELOW] = null
                   edge!!.outp[ABOVE] = out_poly.add_local_min(xb, yb)
                   cf = edge!!.outp[ABOVE]
                 }
                 VertexType.LED -> {
-                  if (edge!!.bot.y == yb) edge!!.outp[BELOW]!!
-                    .add_left(xb, yb)
+                  if (edge!!.bot.y == yb) edge!!.outp[BELOW]!!.add_left(xb, yb)
                   edge!!.outp[ABOVE] = edge!!.outp[BELOW]
                   px = xb
                 }
                 VertexType.RED -> {
-                  if (edge!!.bot.y == yb) edge!!.outp[BELOW]!!
-                    .add_right(xb, yb)
+                  if (edge!!.bot.y == yb) edge!!.outp[BELOW]!!.add_right(xb, yb)
                   edge!!.outp[ABOVE] = edge!!.outp[BELOW]
                   px = xb
                 }
@@ -611,10 +530,7 @@ internal object RClip {
 
         /* Build intersection table for the current scanbeam */
         val it_table = ItNodeTable()
-        it_table.build_intersection_table(
-          aet,
-          dy
-        )
+        it_table.build_intersection_table(aet, dy)
 
         /* Process each node in the intersection table */
         var intersect = it_table.top_node
@@ -623,23 +539,15 @@ internal object RClip {
           e1 = intersect.ie[1]
 
           /* Only generate output for contributing intersections */
-          if ((e0.bundle[ABOVE][CLIP] != 0 || e0.bundle[ABOVE][SUBJ] != 0) &&
-            (e1.bundle[ABOVE][CLIP] != 0 || e1.bundle[ABOVE][SUBJ] != 0)
-          ) {
+          if ((e0.bundle[ABOVE][CLIP] != 0 || e0.bundle[ABOVE][SUBJ] != 0) && (e1.bundle[ABOVE][CLIP] != 0 || e1.bundle[ABOVE][SUBJ] != 0)) {
             val p = e0.outp[ABOVE]
             val q = e1.outp[ABOVE]
             val ix = intersect.point.x
             val iy = intersect.point.y + yb
-            val inClip = if (e0.bundle[ABOVE][CLIP] != 0 && e0.bside[CLIP] == 0 ||
-              e1.bundle[ABOVE][CLIP] != 0 && e1.bside[CLIP] != 0 ||
-              e0.bundle[ABOVE][CLIP] == 0 && e1.bundle[ABOVE][CLIP] == 0 &&
-              e0.bside[CLIP] != 0 && e1.bside[CLIP] != 0
-            ) 1 else 0
-            val inSubj = if (e0.bundle[ABOVE][SUBJ] != 0 && e0.bside[SUBJ] == 0 ||
-              e1.bundle[ABOVE][SUBJ] != 0 && e1.bside[SUBJ] != 0 ||
-              e0.bundle[ABOVE][SUBJ] == 0 && e1.bundle[ABOVE][SUBJ] == 0 &&
-              e0.bside[SUBJ] != 0 && e1.bside[SUBJ] != 0
-            ) 1 else 0
+            val inClip =
+              if (e0.bundle[ABOVE][CLIP] != 0 && e0.bside[CLIP] == 0 || e1.bundle[ABOVE][CLIP] != 0 && e1.bside[CLIP] != 0 || e0.bundle[ABOVE][CLIP] == 0 && e1.bundle[ABOVE][CLIP] == 0 && e0.bside[CLIP] != 0 && e1.bside[CLIP] != 0) 1 else 0
+            val inSubj =
+              if (e0.bundle[ABOVE][SUBJ] != 0 && e0.bside[SUBJ] == 0 || e1.bundle[ABOVE][SUBJ] != 0 && e1.bside[SUBJ] != 0 || e0.bundle[ABOVE][SUBJ] == 0 && e1.bundle[ABOVE][SUBJ] == 0 && e0.bside[SUBJ] != 0 && e1.bside[SUBJ] != 0) 1 else 0
             var tr = 0
             var tl = 0
             var br = 0
@@ -651,132 +559,77 @@ internal object RClip {
                 if (inClip xor e1.bundle[ABOVE][CLIP] != 0 && inSubj xor e1.bundle[ABOVE][SUBJ] != 0) 1 else 0
               br =
                 if (inClip xor e0.bundle[ABOVE][CLIP] != 0 && inSubj xor e0.bundle[ABOVE][SUBJ] != 0) 1 else 0
-              bl = if (inClip xor e1.bundle[ABOVE][CLIP] xor e0.bundle[ABOVE][CLIP] != 0 &&
-                inSubj xor e1.bundle[ABOVE][SUBJ] xor e0.bundle[ABOVE][SUBJ] != 0
-              ) 1 else 0
+              bl =
+                if (inClip xor e1.bundle[ABOVE][CLIP] xor e0.bundle[ABOVE][CLIP] != 0 && inSubj xor e1.bundle[ABOVE][SUBJ] xor e0.bundle[ABOVE][SUBJ] != 0) 1 else 0
             } else if (op === OperationType.GPC_XOR) {
               tr = inClip xor inSubj
               tl = inClip xor e1.bundle[ABOVE][CLIP] xor (inSubj xor e1.bundle[ABOVE][SUBJ])
               br = inClip xor e0.bundle[ABOVE][CLIP] xor (inSubj xor e0.bundle[ABOVE][SUBJ])
-              bl = (inClip xor e1.bundle[ABOVE][CLIP] xor e0.bundle[ABOVE][CLIP]
-                xor (inSubj xor e1.bundle[ABOVE][SUBJ] xor e0.bundle[ABOVE][SUBJ]))
+              bl =
+                (inClip xor e1.bundle[ABOVE][CLIP] xor e0.bundle[ABOVE][CLIP] xor (inSubj xor e1.bundle[ABOVE][SUBJ] xor e0.bundle[ABOVE][SUBJ]))
             } else if (op === OperationType.GPC_UNION) {
               tr = if (inClip != 0 || inSubj != 0) 1 else 0
               tl =
                 if (inClip xor e1.bundle[ABOVE][CLIP] != 0 || inSubj xor e1.bundle[ABOVE][SUBJ] != 0) 1 else 0
               br =
                 if (inClip xor e0.bundle[ABOVE][CLIP] != 0 || inSubj xor e0.bundle[ABOVE][SUBJ] != 0) 1 else 0
-              bl = if (inClip xor e1.bundle[ABOVE][CLIP] xor e0.bundle[ABOVE][CLIP] != 0 ||
-                inSubj xor e1.bundle[ABOVE][SUBJ] xor e0.bundle[ABOVE][SUBJ] != 0
-              ) 1 else 0
+              bl =
+                if (inClip xor e1.bundle[ABOVE][CLIP] xor e0.bundle[ABOVE][CLIP] != 0 || inSubj xor e1.bundle[ABOVE][SUBJ] xor e0.bundle[ABOVE][SUBJ] != 0) 1 else 0
             } else {
               throw IllegalStateException("Unknown op type, $op")
             }
-            val vclass = VertexType.getType(
-              tr,
-              tl,
-              br,
-              bl
-            )
+            val vclass = VertexType.getType(tr, tl, br, bl)
             when (vclass) {
               VertexType.EMN -> {
-                e0.outp[ABOVE] = out_poly.add_local_min(
-                  ix,
-                  iy
-                )
+                e0.outp[ABOVE] = out_poly.add_local_min(ix, iy)
                 e1.outp[ABOVE] = e0.outp[ABOVE]
               }
               VertexType.ERI -> if (p != null) {
-                p.add_right(
-                  ix,
-                  iy
-                )
+                p.add_right(ix, iy)
                 e1.outp[ABOVE] = p
                 e0.outp[ABOVE] = null
               }
               VertexType.ELI -> if (q != null) {
-                q.add_left(
-                  ix,
-                  iy
-                )
+                q.add_left(ix, iy)
                 e0.outp[ABOVE] = q
                 e1.outp[ABOVE] = null
               }
               VertexType.EMX -> if (p != null && q != null) {
-                p.add_left(
-                  ix,
-                  iy
-                )
-                out_poly.merge_right(
-                  p,
-                  q
-                )
+                p.add_left(ix, iy)
+                out_poly.merge_right(p, q)
                 e0.outp[ABOVE] = null
                 e1.outp[ABOVE] = null
               }
               VertexType.IMN -> {
-                e0.outp[ABOVE] = out_poly.add_local_min(
-                  ix,
-                  iy
-                )
+                e0.outp[ABOVE] = out_poly.add_local_min(ix, iy)
                 e1.outp[ABOVE] = e0.outp[ABOVE]
               }
               VertexType.ILI -> if (p != null) {
-                p.add_left(
-                  ix,
-                  iy
-                )
+                p.add_left(ix, iy)
                 e1.outp[ABOVE] = p
                 e0.outp[ABOVE] = null
               }
               VertexType.IRI -> if (q != null) {
-                q.add_right(
-                  ix,
-                  iy
-                )
+                q.add_right(ix, iy)
                 e0.outp[ABOVE] = q
                 e1.outp[ABOVE] = null
               }
               VertexType.IMX -> if (p != null && q != null) {
-                p.add_right(
-                  ix,
-                  iy
-                )
-                out_poly.merge_left(
-                  p,
-                  q
-                )
+                p.add_right(ix, iy)
+                out_poly.merge_left(p, q)
                 e0.outp[ABOVE] = null
                 e1.outp[ABOVE] = null
               }
               VertexType.IMM -> if (p != null && q != null) {
-                p.add_right(
-                  ix,
-                  iy
-                )
-                out_poly.merge_left(
-                  p,
-                  q
-                )
-                e0.outp[ABOVE] = out_poly.add_local_min(
-                  ix,
-                  iy
-                )
+                p.add_right(ix, iy)
+                out_poly.merge_left(p, q)
+                e0.outp[ABOVE] = out_poly.add_local_min(ix, iy)
                 e1.outp[ABOVE] = e0.outp[ABOVE]
               }
               VertexType.EMM -> if (p != null && q != null) {
-                p.add_left(
-                  ix,
-                  iy
-                )
-                out_poly.merge_right(
-                  p,
-                  q
-                )
-                e0.outp[ABOVE] = out_poly.add_local_min(
-                  ix,
-                  iy
-                )
+                p.add_left(ix, iy)
+                out_poly.merge_right(p, q)
+                e0.outp[ABOVE] = out_poly.add_local_min(ix, iy)
                 e1.outp[ABOVE] = e0.outp[ABOVE]
               }
               else -> {
@@ -785,8 +638,7 @@ internal object RClip {
           } /* End of contributing intersection conditional */
 
           /* Swap bundle sides in response to edge crossing */
-          if (e0.bundle[ABOVE][CLIP] != 0) e1.bside[CLIP] =
-            if (e1.bside[CLIP] == 0) 1 else 0
+          if (e0.bundle[ABOVE][CLIP] != 0) e1.bside[CLIP] = if (e1.bside[CLIP] == 0) 1 else 0
           if (e1.bundle[ABOVE][CLIP] != 0) e0.bside[CLIP] = if (e0.bside[CLIP] == 0) 1 else 0
           if (e0.bundle[ABOVE][SUBJ] != 0) e1.bside[SUBJ] = if (e1.bside[SUBJ] == 0) 1 else 0
           if (e1.bundle[ABOVE][SUBJ] != 0) e0.bside[SUBJ] = if (e0.bside[SUBJ] == 0) 1 else 0
@@ -868,11 +720,7 @@ internal object RClip {
    */
   private fun clip(op: OperationType, subj: RPolygon, clip: RPolygon): RMesh {
     if (RG.useFastClip) {
-      return FastRClip.clip(
-        op,
-        subj,
-        clip
-      )
+      return FastRClip.clip(op, subj, clip)
     }
     var tlist: PolygonNode? = null
     var tnn: PolygonNode
@@ -900,35 +748,20 @@ internal object RClip {
     var iy: Float
 
     /* Test for trivial NULL result cases */
-    if (subj.isEmpty && clip.isEmpty ||
-      subj.isEmpty && (op === OperationType.GPC_INT || op === OperationType.GPC_DIFF) ||
-      clip.isEmpty && op === OperationType.GPC_INT
-    ) {
+    if (subj.isEmpty && clip.isEmpty || subj.isEmpty && (op === OperationType.GPC_INT || op === OperationType.GPC_DIFF) || clip.isEmpty && op === OperationType.GPC_INT) {
       return RMesh()
     }
 
     /* Identify potentialy contributing contours */
-    if ((op === OperationType.GPC_INT || op === OperationType.GPC_DIFF) &&
-      !subj.isEmpty && !clip.isEmpty
-    ) {
-      minimax_test(
-        subj,
-        clip,
-        op
-      )
+    if ((op === OperationType.GPC_INT || op === OperationType.GPC_DIFF) && !subj.isEmpty && !clip.isEmpty) {
+      minimax_test(subj, clip, op)
     }
 
     /* Build LMT */
     val lmt_table = LmtTable()
     val sbte = ScanBeamTreeEntries()
     if (!subj.isEmpty) {
-      build_lmt(
-        lmt_table,
-        sbte,
-        subj,
-        SUBJ,
-        op
-      )
+      build_lmt(lmt_table, sbte, subj, SUBJ, op)
     }
     if (DEBUG) {
       println()
@@ -936,13 +769,7 @@ internal object RClip {
       lmt_table.print()
     }
     if (!clip.isEmpty) {
-      build_lmt(
-        lmt_table,
-        sbte,
-        clip,
-        CLIP,
-        op
-      )
+      build_lmt(lmt_table, sbte, clip, CLIP, op)
     }
     if (DEBUG) {
       println()
@@ -991,10 +818,7 @@ internal object RClip {
           /* Add edges starting at this local minimum to the AET */
           edge = local_min.first_bound
           while (edge != null) {
-            add_edge_to_aet(
-              aet,
-              edge
-            )
+            add_edge_to_aet(aet, edge)
             edge = edge.next_bound
           }
           local_min = local_min.next
@@ -1010,8 +834,7 @@ internal object RClip {
       e0 = aet.top_node
 
       /* Set up bundle fields of first edge */
-      aet.top_node!!.bundle[ABOVE][aet.top_node!!.type] =
-        if (aet.top_node!!.top.y != yb) 1 else 0
+      aet.top_node!!.bundle[ABOVE][aet.top_node!!.type] = if (aet.top_node!!.top.y != yb) 1 else 0
       aet.top_node!!.bundle[ABOVE][if (aet.top_node!!.type == 0) 1 else 0] = 0
       aet.top_node!!.bstate[ABOVE] = BundleState.UNBUNDLED
       next_edge = aet.top_node!!.next
@@ -1020,21 +843,13 @@ internal object RClip {
         val ne_type_opp = if (next_edge.type == 0) 1 else 0 //next edge type opposite
 
         /* Set up bundle fields of next edge */
-        next_edge.bundle[ABOVE][ne_type] =
-          if (next_edge.top.y != yb) 1 else 0
+        next_edge.bundle[ABOVE][ne_type] = if (next_edge.top.y != yb) 1 else 0
         next_edge.bundle[ABOVE][ne_type_opp] = 0
         next_edge.bstate[ABOVE] = BundleState.UNBUNDLED
 
         /* Bundle edges above the scanbeam boundary if they coincide */
         if (next_edge.bundle[ABOVE][ne_type] == 1) {
-          if (EQ(
-              e0!!.xb,
-              next_edge.xb
-            ) && EQ(
-              e0.dx,
-              next_edge.dx
-            ) && e0.top.y != yb
-          ) {
+          if (EQ(e0!!.xb, next_edge.xb) && EQ(e0.dx, next_edge.dx) && e0.top.y != yb) {
             next_edge.bundle[ABOVE][ne_type] =
               next_edge.bundle[ABOVE][ne_type] xor e0.bundle[ABOVE][ne_type]
             next_edge.bundle[ABOVE][ne_type_opp] = e0.bundle[ABOVE][ne_type_opp]
@@ -1070,20 +885,15 @@ internal object RClip {
           var tl = 0
           /* Determine contributing status and quadrant occupancies */
           if (op === OperationType.GPC_DIFF || op === OperationType.GPC_INT) {
-            contributing = exists[CLIP] != 0 && (parity[SUBJ] != 0 || horiz[SUBJ] != 0) ||
-              exists[SUBJ] != 0 && (parity[CLIP] != 0 || horiz[CLIP] != 0) ||
-              exists[CLIP] != 0 && exists[SUBJ] != 0 && parity[CLIP] == parity[SUBJ]
+            contributing =
+              exists[CLIP] != 0 && (parity[SUBJ] != 0 || horiz[SUBJ] != 0) || exists[SUBJ] != 0 && (parity[CLIP] != 0 || horiz[CLIP] != 0) || exists[CLIP] != 0 && exists[SUBJ] != 0 && parity[CLIP] == parity[SUBJ]
             br = if (parity[CLIP] != 0 && parity[SUBJ] != 0) 1 else 0
-            bl = if (parity[CLIP] xor edge.bundle[ABOVE][CLIP] != 0 &&
-              parity[SUBJ] xor edge.bundle[ABOVE][SUBJ] != 0
-            ) 1 else 0
-            tr = if ((parity[CLIP] xor if (horiz[CLIP] != HState.NH) 1 else 0) != 0 &&
-              (parity[SUBJ] xor if (horiz[SUBJ] != HState.NH) 1 else 0) != 0
-            ) 1 else 0
+            bl =
+              if (parity[CLIP] xor edge.bundle[ABOVE][CLIP] != 0 && parity[SUBJ] xor edge.bundle[ABOVE][SUBJ] != 0) 1 else 0
+            tr =
+              if ((parity[CLIP] xor if (horiz[CLIP] != HState.NH) 1 else 0) != 0 && (parity[SUBJ] xor if (horiz[SUBJ] != HState.NH) 1 else 0) != 0) 1 else 0
             tl =
-              if (parity[CLIP] xor (if (horiz[CLIP] != HState.NH) 1 else 0) xor edge.bundle[BELOW][CLIP] != 0 &&
-                parity[SUBJ] xor (if (horiz[SUBJ] != HState.NH) 1 else 0) xor edge.bundle[BELOW][SUBJ] != 0
-              ) 1 else 0
+              if (parity[CLIP] xor (if (horiz[CLIP] != HState.NH) 1 else 0) xor edge.bundle[BELOW][CLIP] != 0 && parity[SUBJ] xor (if (horiz[SUBJ] != HState.NH) 1 else 0) xor edge.bundle[BELOW][SUBJ] != 0) 1 else 0
           } else if (op === OperationType.GPC_XOR) {
             contributing = exists[CLIP] != 0 || exists[SUBJ] != 0
             br = parity[CLIP] xor parity[SUBJ]
@@ -1092,22 +902,17 @@ internal object RClip {
             tr =
               parity[CLIP] xor if (horiz[CLIP] != HState.NH) 1 else 0 xor (parity[SUBJ] xor if (horiz[SUBJ] != HState.NH) 1 else 0)
             tl =
-              (parity[CLIP] xor (if (horiz[CLIP] != HState.NH) 1 else 0) xor edge.bundle[BELOW][CLIP]
-                xor (parity[SUBJ] xor (if (horiz[SUBJ] != HState.NH) 1 else 0) xor edge.bundle[BELOW][SUBJ]))
+              (parity[CLIP] xor (if (horiz[CLIP] != HState.NH) 1 else 0) xor edge.bundle[BELOW][CLIP] xor (parity[SUBJ] xor (if (horiz[SUBJ] != HState.NH) 1 else 0) xor edge.bundle[BELOW][SUBJ]))
           } else if (op === OperationType.GPC_UNION) {
-            contributing = exists[CLIP] != 0 && (parity[SUBJ] == 0 || horiz[SUBJ] != 0) ||
-              exists[SUBJ] != 0 && (parity[CLIP] == 0 || horiz[CLIP] != 0) ||
-              exists[CLIP] != 0 && exists[SUBJ] != 0 && parity[CLIP] == parity[SUBJ]
+            contributing =
+              exists[CLIP] != 0 && (parity[SUBJ] == 0 || horiz[SUBJ] != 0) || exists[SUBJ] != 0 && (parity[CLIP] == 0 || horiz[CLIP] != 0) || exists[CLIP] != 0 && exists[SUBJ] != 0 && parity[CLIP] == parity[SUBJ]
             br = if (parity[CLIP] != 0 || parity[SUBJ] != 0) 1 else 0
             bl =
               if (parity[CLIP] xor edge.bundle[ABOVE][CLIP] != 0 || parity[SUBJ] xor edge.bundle[ABOVE][SUBJ] != 0) 1 else 0
-            tr = if ((parity[CLIP] xor if (horiz[CLIP] != HState.NH) 1 else 0) != 0 ||
-              (parity[SUBJ] xor if (horiz[SUBJ] != HState.NH) 1 else 0) != 0
-            ) 1 else 0
+            tr =
+              if ((parity[CLIP] xor if (horiz[CLIP] != HState.NH) 1 else 0) != 0 || (parity[SUBJ] xor if (horiz[SUBJ] != HState.NH) 1 else 0) != 0) 1 else 0
             tl =
-              if (parity[CLIP] xor (if (horiz[CLIP] != HState.NH) 1 else 0) xor edge.bundle[BELOW][CLIP] != 0 ||
-                parity[SUBJ] xor (if (horiz[SUBJ] != HState.NH) 1 else 0) xor edge.bundle[BELOW][SUBJ] != 0
-              ) 1 else 0
+              if (parity[CLIP] xor (if (horiz[CLIP] != HState.NH) 1 else 0) xor edge.bundle[BELOW][CLIP] != 0 || parity[SUBJ] xor (if (horiz[SUBJ] != HState.NH) 1 else 0) xor edge.bundle[BELOW][SUBJ] != 0) 1 else 0
           } else {
             throw IllegalStateException("Unknown op")
           }
@@ -1125,55 +930,27 @@ internal object RClip {
           }
           if (contributing) {
             xb = edge.xb
-            val vclass = VertexType.getType(
-              tr,
-              tl,
-              br,
-              bl
-            )
+            val vclass = VertexType.getType(tr, tl, br, bl)
             when (vclass) {
               VertexType.EMN -> {
-                tlist = new_tristrip(
-                  tlist,
-                  edge,
-                  xb,
-                  yb
-                )
+                tlist = new_tristrip(tlist, edge, xb, yb)
                 cf = edge
               }
               VertexType.ERI -> {
                 edge.outp[ABOVE] = cf!!.outp[ABOVE]
                 if (xb != cf.xb) {
-                  VERTEX(
-                    edge,
-                    ABOVE,
-                    RIGHT,
-                    xb,
-                    yb
-                  )
+                  VERTEX(edge, ABOVE, RIGHT, xb, yb)
                 }
                 cf = null
               }
               VertexType.ELI -> {
-                VERTEX(
-                  edge,
-                  BELOW,
-                  LEFT,
-                  xb,
-                  yb
-                )
+                VERTEX(edge, BELOW, LEFT, xb, yb)
                 edge.outp[ABOVE] = null
                 cf = edge
               }
               VertexType.EMX -> {
                 if (xb != cf!!.xb) {
-                  VERTEX(
-                    edge,
-                    BELOW,
-                    RIGHT,
-                    xb,
-                    yb
-                  )
+                  VERTEX(edge, BELOW, RIGHT, xb, yb)
                 }
                 edge.outp[ABOVE] = null
                 cf = null
@@ -1181,123 +958,49 @@ internal object RClip {
               VertexType.IMN -> {
                 if (cft == VertexType.LED) {
                   if (cf!!.bot.y != yb) {
-                    VERTEX(
-                      cf,
-                      BELOW,
-                      LEFT,
-                      cf.xb,
-                      yb
-                    )
+                    VERTEX(cf, BELOW, LEFT, cf.xb, yb)
                   }
-                  tlist = new_tristrip(
-                    tlist,
-                    cf,
-                    cf.xb,
-                    yb
-                  )
+                  tlist = new_tristrip(tlist, cf, cf.xb, yb)
                 }
                 edge.outp[ABOVE] = cf!!.outp[ABOVE]
-                VERTEX(
-                  edge,
-                  ABOVE,
-                  RIGHT,
-                  xb,
-                  yb
-                )
+                VERTEX(edge, ABOVE, RIGHT, xb, yb)
               }
               VertexType.ILI -> {
-                tlist = new_tristrip(
-                  tlist,
-                  edge,
-                  xb,
-                  yb
-                )
+                tlist = new_tristrip(tlist, edge, xb, yb)
                 cf = edge
                 cft = VertexType.ILI
               }
               VertexType.IRI -> {
                 if (cft == VertexType.LED) {
                   if (cf!!.bot.y != yb) {
-                    VERTEX(
-                      cf,
-                      BELOW,
-                      LEFT,
-                      cf.xb,
-                      yb
-                    )
+                    VERTEX(cf, BELOW, LEFT, cf.xb, yb)
                   }
-                  tlist = new_tristrip(
-                    tlist,
-                    cf,
-                    cf.xb,
-                    yb
-                  )
+                  tlist = new_tristrip(tlist, cf, cf.xb, yb)
                 }
-                VERTEX(
-                  edge,
-                  BELOW,
-                  RIGHT,
-                  xb,
-                  yb
-                )
+                VERTEX(edge, BELOW, RIGHT, xb, yb)
                 edge.outp[ABOVE] = null
               }
               VertexType.IMX -> {
-                VERTEX(
-                  edge,
-                  BELOW,
-                  LEFT,
-                  xb,
-                  yb
-                )
+                VERTEX(edge, BELOW, LEFT, xb, yb)
                 edge.outp[ABOVE] = null
                 cft = VertexType.IMX
               }
               VertexType.IMM -> {
-                VERTEX(
-                  edge,
-                  BELOW,
-                  LEFT,
-                  xb,
-                  yb
-                )
+                VERTEX(edge, BELOW, LEFT, xb, yb)
                 edge.outp[ABOVE] = cf!!.outp[ABOVE]
                 if (xb != cf.xb) {
-                  VERTEX(
-                    cf,
-                    ABOVE,
-                    RIGHT,
-                    xb,
-                    yb
-                  )
+                  VERTEX(cf, ABOVE, RIGHT, xb, yb)
                 }
                 cf = edge
               }
               VertexType.EMM -> {
-                VERTEX(
-                  edge,
-                  BELOW,
-                  RIGHT,
-                  xb,
-                  yb
-                )
+                VERTEX(edge, BELOW, RIGHT, xb, yb)
                 edge.outp[ABOVE] = null
-                tlist = new_tristrip(
-                  tlist,
-                  edge,
-                  xb,
-                  yb
-                )
+                tlist = new_tristrip(tlist, edge, xb, yb)
                 cf = edge
               }
               VertexType.LED -> {
-                if (edge.bot.y == yb) VERTEX(
-                  edge,
-                  BELOW,
-                  LEFT,
-                  xb,
-                  yb
-                )
+                if (edge.bot.y == yb) VERTEX(edge, BELOW, LEFT, xb, yb)
                 edge.outp[ABOVE] = edge.outp[BELOW]
                 cf = edge
                 cft = VertexType.LED
@@ -1306,46 +1009,16 @@ internal object RClip {
                 edge.outp[ABOVE] = cf!!.outp[ABOVE]
                 if (cft == VertexType.LED) {
                   if (cf.bot.y == yb) {
-                    VERTEX(
-                      edge,
-                      BELOW,
-                      RIGHT,
-                      xb,
-                      yb
-                    )
+                    VERTEX(edge, BELOW, RIGHT, xb, yb)
                   } else {
                     if (edge.bot.y == yb) {
-                      VERTEX(
-                        cf,
-                        BELOW,
-                        LEFT,
-                        cf.xb,
-                        yb
-                      )
-                      VERTEX(
-                        edge,
-                        BELOW,
-                        RIGHT,
-                        xb,
-                        yb
-                      )
+                      VERTEX(cf, BELOW, LEFT, cf.xb, yb)
+                      VERTEX(edge, BELOW, RIGHT, xb, yb)
                     }
                   }
                 } else {
-                  VERTEX(
-                    edge,
-                    BELOW,
-                    RIGHT,
-                    xb,
-                    yb
-                  )
-                  VERTEX(
-                    edge,
-                    ABOVE,
-                    RIGHT,
-                    xb,
-                    yb
-                  )
+                  VERTEX(edge, BELOW, RIGHT, xb, yb)
+                  VERTEX(edge, ABOVE, RIGHT, xb, yb)
                 }
                 cf = null
               }
@@ -1388,10 +1061,7 @@ internal object RClip {
         /* === SCANBEAM INTERIOR PROCESSING ============================== */
         /* Build intersection table for the current scanbeam */
         val it_table = ItNodeTable()
-        it_table.build_intersection_table(
-          aet,
-          dy
-        )
+        it_table.build_intersection_table(aet, dy)
 
         /* Process each node in the intersection table */
         var intersect = it_table.top_node
@@ -1400,23 +1070,15 @@ internal object RClip {
           e1 = intersect.ie[1]
 
           /* Only generate output for contributing intersections */
-          if ((e0!!.bundle[ABOVE][CLIP] != 0 || e0.bundle[ABOVE][SUBJ] != 0) &&
-            (e1.bundle[ABOVE][CLIP] != 0 || e1.bundle[ABOVE][SUBJ] != 0)
-          ) {
+          if ((e0.bundle[ABOVE][CLIP] != 0 || e0.bundle[ABOVE][SUBJ] != 0) && (e1.bundle[ABOVE][CLIP] != 0 || e1.bundle[ABOVE][SUBJ] != 0)) {
             val p = e0.outp[ABOVE]
             val q = e1.outp[ABOVE]
             ix = intersect.point.x
             iy = intersect.point.y + yb
-            val in_clip = if (e0.bundle[ABOVE][CLIP] != 0 && e0.bside[CLIP] == 0 ||
-              e1.bundle[ABOVE][CLIP] != 0 && e1.bside[CLIP] != 0 ||
-              e0.bundle[ABOVE][CLIP] == 0 && e1.bundle[ABOVE][CLIP] == 0 &&
-              e0.bside[CLIP] != 0 && e1.bside[CLIP] != 0
-            ) 1 else 0
-            val in_subj = if (e0.bundle[ABOVE][SUBJ] != 0 && e0.bside[SUBJ] == 0 ||
-              e1.bundle[ABOVE][SUBJ] != 0 && e1.bside[SUBJ] != 0 ||
-              e0.bundle[ABOVE][SUBJ] == 0 && e1.bundle[ABOVE][SUBJ] == 0 &&
-              e0.bside[SUBJ] != 0 && e1.bside[SUBJ] != 0
-            ) 1 else 0
+            val in_clip =
+              if (e0.bundle[ABOVE][CLIP] != 0 && e0.bside[CLIP] == 0 || e1.bundle[ABOVE][CLIP] != 0 && e1.bside[CLIP] != 0 || e0.bundle[ABOVE][CLIP] == 0 && e1.bundle[ABOVE][CLIP] == 0 && e0.bside[CLIP] != 0 && e1.bside[CLIP] != 0) 1 else 0
+            val in_subj =
+              if (e0.bundle[ABOVE][SUBJ] != 0 && e0.bside[SUBJ] == 0 || e1.bundle[ABOVE][SUBJ] != 0 && e1.bside[SUBJ] != 0 || e0.bundle[ABOVE][SUBJ] == 0 && e1.bundle[ABOVE][SUBJ] == 0 && e0.bside[SUBJ] != 0 && e1.bside[SUBJ] != 0) 1 else 0
             var tr = 0
             var tl = 0
             var br = 0
@@ -1428,360 +1090,108 @@ internal object RClip {
                 if (in_clip xor e1.bundle[ABOVE][CLIP] != 0 && in_subj xor e1.bundle[ABOVE][SUBJ] != 0) 1 else 0
               br =
                 if (in_clip xor e0.bundle[ABOVE][CLIP] != 0 && in_subj xor e0.bundle[ABOVE][SUBJ] != 0) 1 else 0
-              bl = if (in_clip xor e1.bundle[ABOVE][CLIP] xor e0.bundle[ABOVE][CLIP] != 0 &&
-                in_subj xor e1.bundle[ABOVE][SUBJ] xor e0.bundle[ABOVE][SUBJ] != 0
-              ) 1 else 0
+              bl =
+                if (in_clip xor e1.bundle[ABOVE][CLIP] xor e0.bundle[ABOVE][CLIP] != 0 && in_subj xor e1.bundle[ABOVE][SUBJ] xor e0.bundle[ABOVE][SUBJ] != 0) 1 else 0
             } else if (op === OperationType.GPC_XOR) {
               tr = in_clip xor in_subj
               tl = in_clip xor e1.bundle[ABOVE][CLIP] xor (in_subj xor e1.bundle[ABOVE][SUBJ])
               br = in_clip xor e0.bundle[ABOVE][CLIP] xor (in_subj xor e0.bundle[ABOVE][SUBJ])
-              bl = (in_clip xor e1.bundle[ABOVE][CLIP] xor e0.bundle[ABOVE][CLIP]
-                xor (in_subj xor e1.bundle[ABOVE][SUBJ] xor e0.bundle[ABOVE][SUBJ]))
+              bl =
+                (in_clip xor e1.bundle[ABOVE][CLIP] xor e0.bundle[ABOVE][CLIP] xor (in_subj xor e1.bundle[ABOVE][SUBJ] xor e0.bundle[ABOVE][SUBJ]))
             } else if (op === OperationType.GPC_UNION) {
               tr = if (in_clip != 0 || in_subj != 0) 1 else 0
               tl =
                 if (in_clip xor e1.bundle[ABOVE][CLIP] != 0 || in_subj xor e1.bundle[ABOVE][SUBJ] != 0) 1 else 0
               br =
                 if (in_clip xor e0.bundle[ABOVE][CLIP] != 0 || in_subj xor e0.bundle[ABOVE][SUBJ] != 0) 1 else 0
-              bl = if (in_clip xor e1.bundle[ABOVE][CLIP] xor e0.bundle[ABOVE][CLIP] != 0 ||
-                in_subj xor e1.bundle[ABOVE][SUBJ] xor e0.bundle[ABOVE][SUBJ] != 0
-              ) 1 else 0
+              bl =
+                if (in_clip xor e1.bundle[ABOVE][CLIP] xor e0.bundle[ABOVE][CLIP] != 0 || in_subj xor e1.bundle[ABOVE][SUBJ] xor e0.bundle[ABOVE][SUBJ] != 0) 1 else 0
             } else {
               throw IllegalStateException("Unknown op type, $op")
             }
             next_edge = e1.next
             prev_edge = e0.prev
-            val vclass = VertexType.getType(
-              tr,
-              tl,
-              br,
-              bl
-            )
+            val vclass = VertexType.getType(tr, tl, br, bl)
             when (vclass) {
               VertexType.EMN -> {
-                tlist = new_tristrip(
-                  tlist,
-                  e1,
-                  ix,
-                  iy
-                )
+                tlist = new_tristrip(tlist, e1, ix, iy)
                 e1.outp[ABOVE] = e0.outp[ABOVE]
               }
               VertexType.ERI -> if (p != null) {
-                px = P_EDGE(
-                  prev_edge,
-                  e0,
-                  ABOVE,
-                  px,
-                  iy
-                )
-                VERTEX(
-                  prev_edge,
-                  ABOVE,
-                  LEFT,
-                  px,
-                  iy
-                )
-                VERTEX(
-                  e0,
-                  ABOVE,
-                  RIGHT,
-                  ix,
-                  iy
-                )
+                px = P_EDGE(prev_edge, e0, ABOVE, px, iy)
+                VERTEX(prev_edge, ABOVE, LEFT, px, iy)
+                VERTEX(e0, ABOVE, RIGHT, ix, iy)
                 e1.outp[ABOVE] = e0.outp[ABOVE]
                 e0.outp[ABOVE] = null
               }
               VertexType.ELI -> if (q != null) {
-                nx = N_EDGE(
-                  next_edge,
-                  e1,
-                  ABOVE,
-                  nx,
-                  iy
-                )
-                VERTEX(
-                  e1,
-                  ABOVE,
-                  LEFT,
-                  ix,
-                  iy
-                )
-                VERTEX(
-                  next_edge,
-                  ABOVE,
-                  RIGHT,
-                  nx,
-                  iy
-                )
+                nx = N_EDGE(next_edge, e1, ABOVE, nx, iy)
+                VERTEX(e1, ABOVE, LEFT, ix, iy)
+                VERTEX(next_edge, ABOVE, RIGHT, nx, iy)
                 e0.outp[ABOVE] = e1.outp[ABOVE]
                 e1.outp[ABOVE] = null
               }
               VertexType.EMX -> if (p != null && q != null) {
-                VERTEX(
-                  e0,
-                  ABOVE,
-                  LEFT,
-                  ix,
-                  iy
-                )
+                VERTEX(e0, ABOVE, LEFT, ix, iy)
                 e0.outp[ABOVE] = null
                 e1.outp[ABOVE] = null
               }
               VertexType.IMN -> {
-                px = P_EDGE(
-                  prev_edge,
-                  e0,
-                  ABOVE,
-                  px,
-                  iy
-                )
-                VERTEX(
-                  prev_edge,
-                  ABOVE,
-                  LEFT,
-                  px,
-                  iy
-                )
-                nx = N_EDGE(
-                  next_edge,
-                  e1,
-                  ABOVE,
-                  nx,
-                  iy
-                )
-                VERTEX(
-                  next_edge,
-                  ABOVE,
-                  RIGHT,
-                  nx,
-                  iy
-                )
-                tlist = new_tristrip(
-                  tlist,
-                  prev_edge,
-                  px,
-                  iy
-                )
+                px = P_EDGE(prev_edge, e0, ABOVE, px, iy)
+                VERTEX(prev_edge, ABOVE, LEFT, px, iy)
+                nx = N_EDGE(next_edge, e1, ABOVE, nx, iy)
+                VERTEX(next_edge, ABOVE, RIGHT, nx, iy)
+                tlist = new_tristrip(tlist, prev_edge, px, iy)
                 e1.outp[ABOVE] = prev_edge!!.outp[ABOVE]
-                VERTEX(
-                  e1,
-                  ABOVE,
-                  RIGHT,
-                  ix,
-                  iy
-                )
-                tlist = new_tristrip(
-                  tlist,
-                  e0,
-                  ix,
-                  iy
-                )
+                VERTEX(e1, ABOVE, RIGHT, ix, iy)
+                tlist = new_tristrip(tlist, e0, ix, iy)
                 next_edge!!.outp[ABOVE] = e0.outp[ABOVE]
-                VERTEX(
-                  next_edge,
-                  ABOVE,
-                  RIGHT,
-                  nx,
-                  iy
-                )
+                VERTEX(next_edge, ABOVE, RIGHT, nx, iy)
               }
               VertexType.ILI -> if (p != null) {
-                VERTEX(
-                  e0,
-                  ABOVE,
-                  LEFT,
-                  ix,
-                  iy
-                )
-                nx = N_EDGE(
-                  next_edge,
-                  e1,
-                  ABOVE,
-                  nx,
-                  iy
-                )
-                VERTEX(
-                  next_edge,
-                  ABOVE,
-                  RIGHT,
-                  nx,
-                  iy
-                )
+                VERTEX(e0, ABOVE, LEFT, ix, iy)
+                nx = N_EDGE(next_edge, e1, ABOVE, nx, iy)
+                VERTEX(next_edge, ABOVE, RIGHT, nx, iy)
                 e1.outp[ABOVE] = e0.outp[ABOVE]
                 e0.outp[ABOVE] = null
               }
               VertexType.IRI -> if (q != null) {
-                VERTEX(
-                  e1,
-                  ABOVE,
-                  RIGHT,
-                  ix,
-                  iy
-                )
-                px = P_EDGE(
-                  prev_edge,
-                  e0,
-                  ABOVE,
-                  px,
-                  iy
-                )
-                VERTEX(
-                  prev_edge,
-                  ABOVE,
-                  LEFT,
-                  px,
-                  iy
-                )
+                VERTEX(e1, ABOVE, RIGHT, ix, iy)
+                px = P_EDGE(prev_edge, e0, ABOVE, px, iy)
+                VERTEX(prev_edge, ABOVE, LEFT, px, iy)
                 e0.outp[ABOVE] = e1.outp[ABOVE]
                 e1.outp[ABOVE] = null
               }
               VertexType.IMX -> if (p != null && q != null) {
-                VERTEX(
-                  e0,
-                  ABOVE,
-                  RIGHT,
-                  ix,
-                  iy
-                )
-                VERTEX(
-                  e1,
-                  ABOVE,
-                  LEFT,
-                  ix,
-                  iy
-                )
+                VERTEX(e0, ABOVE, RIGHT, ix, iy)
+                VERTEX(e1, ABOVE, LEFT, ix, iy)
                 e0.outp[ABOVE] = null
                 e1.outp[ABOVE] = null
-                px = P_EDGE(
-                  prev_edge,
-                  e0,
-                  ABOVE,
-                  px,
-                  iy
-                )
-                VERTEX(
-                  prev_edge,
-                  ABOVE,
-                  LEFT,
-                  px,
-                  iy
-                )
-                tlist = new_tristrip(
-                  tlist,
-                  prev_edge,
-                  px,
-                  iy
-                )
-                nx = N_EDGE(
-                  next_edge,
-                  e1,
-                  ABOVE,
-                  nx,
-                  iy
-                )
-                VERTEX(
-                  next_edge,
-                  ABOVE,
-                  RIGHT,
-                  nx,
-                  iy
-                )
+                px = P_EDGE(prev_edge, e0, ABOVE, px, iy)
+                VERTEX(prev_edge, ABOVE, LEFT, px, iy)
+                tlist = new_tristrip(tlist, prev_edge, px, iy)
+                nx = N_EDGE(next_edge, e1, ABOVE, nx, iy)
+                VERTEX(next_edge, ABOVE, RIGHT, nx, iy)
                 next_edge!!.outp[ABOVE] = prev_edge!!.outp[ABOVE]
-                VERTEX(
-                  next_edge,
-                  ABOVE,
-                  RIGHT,
-                  nx,
-                  iy
-                )
+                VERTEX(next_edge, ABOVE, RIGHT, nx, iy)
               }
               VertexType.IMM -> if (p != null && q != null) {
-                VERTEX(
-                  e0,
-                  ABOVE,
-                  RIGHT,
-                  ix,
-                  iy
-                )
-                VERTEX(
-                  e1,
-                  ABOVE,
-                  LEFT,
-                  ix,
-                  iy
-                )
-                px = P_EDGE(
-                  prev_edge,
-                  e0,
-                  ABOVE,
-                  px,
-                  iy
-                )
-                VERTEX(
-                  prev_edge,
-                  ABOVE,
-                  LEFT,
-                  px,
-                  iy
-                )
-                tlist = new_tristrip(
-                  tlist,
-                  prev_edge,
-                  px,
-                  iy
-                )
-                nx = N_EDGE(
-                  next_edge,
-                  e1,
-                  ABOVE,
-                  nx,
-                  iy
-                )
-                VERTEX(
-                  next_edge,
-                  ABOVE,
-                  RIGHT,
-                  nx,
-                  iy
-                )
+                VERTEX(e0, ABOVE, RIGHT, ix, iy)
+                VERTEX(e1, ABOVE, LEFT, ix, iy)
+                px = P_EDGE(prev_edge, e0, ABOVE, px, iy)
+                VERTEX(prev_edge, ABOVE, LEFT, px, iy)
+                tlist = new_tristrip(tlist, prev_edge, px, iy)
+                nx = N_EDGE(next_edge, e1, ABOVE, nx, iy)
+                VERTEX(next_edge, ABOVE, RIGHT, nx, iy)
                 e1.outp[ABOVE] = prev_edge!!.outp[ABOVE]
-                VERTEX(
-                  e1,
-                  ABOVE,
-                  RIGHT,
-                  ix,
-                  iy
-                )
-                tlist = new_tristrip(
-                  tlist,
-                  e0,
-                  ix,
-                  iy
-                )
+                VERTEX(e1, ABOVE, RIGHT, ix, iy)
+                tlist = new_tristrip(tlist, e0, ix, iy)
                 next_edge!!.outp[ABOVE] = e0.outp[ABOVE]
-                VERTEX(
-                  next_edge,
-                  ABOVE,
-                  RIGHT,
-                  nx,
-                  iy
-                )
+                VERTEX(next_edge, ABOVE, RIGHT, nx, iy)
               }
               VertexType.EMM -> if (p != null && q != null) {
-                VERTEX(
-                  e0,
-                  ABOVE,
-                  LEFT,
-                  ix,
-                  iy
-                )
-                tlist = new_tristrip(
-                  tlist,
-                  e1,
-                  ix,
-                  iy
-                )
+                VERTEX(e0, ABOVE, LEFT, ix, iy)
+                tlist = new_tristrip(tlist, e1, ix, iy)
                 e1.outp[ABOVE] = e0.outp[ABOVE]
               }
               else -> {
@@ -1790,8 +1200,7 @@ internal object RClip {
           } /* End of contributing intersection conditional */
 
           /* Swap bundle sides in response to edge crossing */
-          if (e0.bundle[ABOVE][CLIP] != 0) e1.bside[CLIP] =
-            if (e1.bside[CLIP] == 0) 1 else 0
+          if (e0.bundle[ABOVE][CLIP] != 0) e1.bside[CLIP] = if (e1.bside[CLIP] == 0) 1 else 0
           if (e1.bundle[ABOVE][CLIP] != 0) e0.bside[CLIP] = if (e0.bside[CLIP] == 0) 1 else 0
           if (e0.bundle[ABOVE][SUBJ] != 0) e1.bside[SUBJ] = if (e1.bside[SUBJ] == 0) 1 else 0
           if (e1.bundle[ABOVE][SUBJ] != 0) e0.bside[SUBJ] = if (e0.bside[SUBJ] == 0) 1 else 0
@@ -1881,19 +1290,13 @@ internal object RClip {
           while (lt != null || rt != null) {
             if (lt != null) {
               ltn = lt.next!!
-              strip.add(
-                lt.x,
-                lt.y
-              )
+              strip.add(lt.x, lt.y)
               v++
               lt = ltn
             }
             if (rt != null) {
               rtn = rt.next!!
-              strip.add(
-                rt.x,
-                rt.y
-              )
+              strip.add(rt.x, rt.y)
               v++
               rt = rtn
             }
@@ -1934,11 +1337,7 @@ internal object RClip {
           }
       }
     */
-    return clip(
-      OperationType.GPC_UNION,
-      s_clean,
-      c
-    )
+    return clip(OperationType.GPC_UNION, s_clean, c)
   }
 
   private fun EQ(a: Float, b: Float): Boolean {
@@ -1954,22 +1353,12 @@ internal object RClip {
   }
 
   private fun OPTIMAL(p: RPolygon, i: Int): Boolean {
-    return p.getY(PREV_INDEX(
-      i,
-      p.numPoints
-    )) != p.getY(i) ||
-      p.getY(NEXT_INDEX(
-        i,
-        p.numPoints
-      )) != p.getY(i)
+    return p.getY(PREV_INDEX(i, p.numPoints)) != p.getY(i) || p.getY(
+      NEXT_INDEX(i, p.numPoints)) != p.getY(i)
   }
 
   private fun VERTEX(e: EdgeNode?, p: Int, s: Int, x: Float, y: Float) {
-    e!!.outp[p]!!.v[s] = add_vertex(
-      e.outp[p]!!.v[s],
-      x,
-      y
-    )
+    e!!.outp[p]!!.v[s] = add_vertex(e.outp[p]!!.v[s], x, y)
     e.outp[p]!!.active++
   }
 
@@ -2012,10 +1401,8 @@ internal object RClip {
     /* Check all subject contour bounding boxes against clip boxes */
     for (s in 0 until subj_num_poly) {
       for (c in 0 until clip_num_poly) {
-        o_table[s][c] = !(s_bbox[s]!!.maxX < c_bbox[c]!!.minX ||
-          s_bbox[s]!!.minX > c_bbox[c]!!.maxX) &&
-          !(s_bbox[s]!!.maxY < c_bbox[c]!!.minY ||
-            s_bbox[s]!!.minY > c_bbox[c]!!.maxY)
+        o_table[s][c] =
+          !(s_bbox[s]!!.maxX < c_bbox[c]!!.minX || s_bbox[s]!!.minX > c_bbox[c]!!.maxX) && !(s_bbox[s]!!.maxY < c_bbox[c]!!.minY || s_bbox[s]!!.minY > c_bbox[c]!!.maxY)
       }
     }
 
@@ -2028,10 +1415,7 @@ internal object RClip {
         s++
       }
       if (!overlap) {
-        clip.setContributing(
-          c,
-          false
-        ) // Flag non contributing status
+        clip.setContributing(c, false) // Flag non contributing status
       }
     }
     if (op === OperationType.GPC_INT) {
@@ -2044,10 +1428,7 @@ internal object RClip {
           c++
         }
         if (!overlap) {
-          subj.setContributing(
-            s,
-            false
-          ) // Flag non contributing status
+          subj.setContributing(s, false) // Flag non contributing status
         }
       }
     }
@@ -2284,33 +1665,20 @@ internal object RClip {
       val ip = p.getInnerPoly(c)
       if (!ip.isContributing(0)) {
         /* Ignore the non-contributing contour */
-        ip.setContributing(
-          0,
-          true
-        )
+        ip.setContributing(0, true)
       } else {
         /* Perform contour optimisation */
         var num_vertices = 0
         var e_index = 0
         edge_table = EdgeTable()
         for (i in 0 until ip.numPoints) {
-          if (OPTIMAL(
-              ip,
-              i
-            )
-          ) {
+          if (OPTIMAL(ip, i)) {
             val x = ip.getX(i)
             val y = ip.getY(i)
-            edge_table.addNode(
-              x,
-              y
-            )
+            edge_table.addNode(x, y)
 
             /* Record vertex in the scanbeam table */
-            add_to_sbtree(
-              sbte,
-              ip.getY(i)
-            )
+            add_to_sbtree(sbte, ip.getY(i))
             num_vertices++
           }
         }
@@ -2321,16 +1689,10 @@ internal object RClip {
           if (edge_table.FWD_MIN(min)) {
             /* Search for the next local maximum... */
             var num_edges = 1
-            var max = NEXT_INDEX(
-              min,
-              num_vertices
-            )
+            var max = NEXT_INDEX(min, num_vertices)
             while (edge_table.NOT_FMAX(max)) {
               num_edges++
-              max = NEXT_INDEX(
-                max,
-                num_vertices
-              )
+              max = NEXT_INDEX(max, num_vertices)
             }
 
             /* Build the next edge list */
@@ -2345,10 +1707,7 @@ internal object RClip {
               ei.xb = ev.vertex.x
               ei.bot.x = ev.vertex.x
               ei.bot.y = ev.vertex.y
-              v = NEXT_INDEX(
-                v,
-                num_vertices
-              )
+              v = NEXT_INDEX(v, num_vertices)
               ev = edge_table.getNode(v)
               ei.top.x = ev.vertex.x
               ei.top.y = ev.vertex.y
@@ -2358,20 +1717,15 @@ internal object RClip {
               ei.outp[BELOW] = null
               ei.next = null
               ei.prev = null
-              ei.succ = if (num_edges > 1 && i < num_edges - 1) edge_table.getNode(
-                e_index + i + 1) else null
+              ei.succ =
+                if (num_edges > 1 && i < num_edges - 1) edge_table.getNode(
+                  e_index + i + 1) else null
               ei.pred = if (num_edges > 1 && i > 0) edge_table.getNode(e_index + i - 1) else null
               ei.next_bound = null
               ei.bside[CLIP] = if (op === OperationType.GPC_DIFF) RIGHT else LEFT
               ei.bside[SUBJ] = LEFT
             }
-            insert_bound(
-              bound_list(
-                lmt_table,
-                edge_table.getNode(min).vertex.y
-              ),
-              e
-            )
+            insert_bound(bound_list(lmt_table, edge_table.getNode(min).vertex.y), e)
             if (DEBUG) {
               println("fwd")
               lmt_table.print()
@@ -2386,16 +1740,10 @@ internal object RClip {
           if (edge_table.REV_MIN(min)) {
             /* Search for the previous local maximum... */
             var num_edges = 1
-            var max = PREV_INDEX(
-              min,
-              num_vertices
-            )
+            var max = PREV_INDEX(min, num_vertices)
             while (edge_table.NOT_RMAX(max)) {
               num_edges++
-              max = PREV_INDEX(
-                max,
-                num_vertices
-              )
+              max = PREV_INDEX(max, num_vertices)
             }
 
             /* Build the previous edge list */
@@ -2410,10 +1758,7 @@ internal object RClip {
               ei.xb = ev.vertex.x
               ei.bot.x = ev.vertex.x
               ei.bot.y = ev.vertex.y
-              v = PREV_INDEX(
-                v,
-                num_vertices
-              )
+              v = PREV_INDEX(v, num_vertices)
               ev = edge_table.getNode(v)
               ei.top.x = ev.vertex.x
               ei.top.y = ev.vertex.y
@@ -2423,20 +1768,15 @@ internal object RClip {
               ei.outp[BELOW] = null
               ei.next = null
               ei.prev = null
-              ei.succ = if (num_edges > 1 && i < num_edges - 1) edge_table.getNode(
-                e_index + i + 1) else null
+              ei.succ =
+                if (num_edges > 1 && i < num_edges - 1) edge_table.getNode(
+                  e_index + i + 1) else null
               ei.pred = if (num_edges > 1 && i > 0) edge_table.getNode(e_index + i - 1) else null
               ei.next_bound = null
               ei.bside[CLIP] = if (op === OperationType.GPC_DIFF) RIGHT else LEFT
               ei.bside[SUBJ] = LEFT
             }
-            insert_bound(
-              bound_list(
-                lmt_table,
-                edge_table.getNode(min).vertex.y
-              ),
-              e
-            )
+            insert_bound(bound_list(lmt_table, edge_table.getNode(min).vertex.y), e)
             if (DEBUG) {
               println("rev")
               lmt_table.print()
@@ -2453,23 +1793,15 @@ internal object RClip {
     var st = st
     if (st == null) {
       /* Append edge onto the tail end of the ST */
-      st = StNode(
-        edge,
-        null
-      )
+      st = StNode(edge, null)
     } else {
       val den = st.xt - st.xb - (edge.xt - edge.xb)
 
       /* If new edge and ST edge don't cross */
-      if (edge.xt >= st.xt || edge.dx == st.dx || Math.abs(
-          den) <= GPC_EPSILON
-      ) {
+      if (edge.xt >= st.xt || edge.dx == st.dx || Math.abs(den) <= GPC_EPSILON) {
         /* No intersection - insert edge here (before the ST edge) */
         val existing_node: StNode = st
-        st = StNode(
-          edge,
-          existing_node
-        )
+        st = StNode(edge, existing_node)
       } else {
         /* Compute intersection between new edge and ST edge */
         val r = (edge.xb - st.xb) / den
@@ -2477,22 +1809,10 @@ internal object RClip {
         val y = r * dy
 
         /* Insert the edge pointers and the intersection point in the IT */
-        it.top_node =
-          add_intersection(
-            it.top_node,
-            st.edge,
-            edge,
-            x,
-            y
-          )
+        it.top_node = add_intersection(it.top_node, st.edge, edge, x, y)
 
         /* Head further into the ST */
-        st.prev = add_st_edge(
-          st.prev,
-          it,
-          edge,
-          dy
-        )
+        st.prev = add_st_edge(st.prev, it, edge, dy)
       }
     }
     return st
@@ -2508,33 +1828,15 @@ internal object RClip {
     var it_node = it_node
     if (it_node == null) {
       /* Append a new node to the tail of the list */
-      it_node = ItNode(
-        edge0,
-        edge1,
-        x,
-        y,
-        null
-      )
+      it_node = ItNode(edge0, edge1, x, y, null)
     } else {
       if (it_node.point.y > y) {
         /* Insert a new node mid-list */
         val existing_node: ItNode = it_node
-        it_node = ItNode(
-          edge0,
-          edge1,
-          x,
-          y,
-          existing_node
-        )
+        it_node = ItNode(edge0, edge1, x, y, existing_node)
       } else {
         /* Head further down the list */
-        it_node.next = add_intersection(
-          it_node.next,
-          edge0,
-          edge1,
-          x,
-          y
-        )
+        it_node.next = add_intersection(it_node.next, edge0, edge1, x, y)
       }
     }
     return it_node
@@ -2557,17 +1859,10 @@ internal object RClip {
     var ve_node = ve_node
     if (ve_node == null) {
       /* Append a new node to the tail of the list */
-      ve_node = VertexNode(
-        x,
-        y
-      )
+      ve_node = VertexNode(x, y)
     } else {
       /* Head further down the list */
-      ve_node.next = add_vertex(
-        ve_node.next,
-        x,
-        y
-      )
+      ve_node.next = add_vertex(ve_node.next, x, y)
     }
     return ve_node
   }
@@ -2579,20 +1874,11 @@ internal object RClip {
     if (po_node == null) {
       /* Append a new node to the tail of the list */
       po_node = PolygonNode()
-      po_node.v[LEFT] = add_vertex(
-        po_node.v[LEFT],
-        x,
-        y
-      )
+      po_node.v[LEFT] = add_vertex(po_node.v[LEFT], x, y)
       edge!!.outp[ABOVE] = po_node
     } else {
       /* Head further down the list */
-      po_node.next = new_tristrip(
-        po_node.next,
-        edge,
-        x,
-        y
-      )
+      po_node.next = new_tristrip(po_node.next, edge, x, y)
     }
     return po_node
   }
@@ -2659,8 +1945,8 @@ internal object RClip {
 
     /* Horizontal edge state transitions within scanbeam boundary */
     val next_h_state =
-      arrayOf(intArrayOf(BH, TH, TH, BH, NH, NH), intArrayOf(NH, NH, NH, NH, TH, TH), intArrayOf(
-        NH, NH, NH, NH, BH, BH))
+      arrayOf(intArrayOf(BH, TH, TH, BH, NH, NH), intArrayOf(NH, NH, NH, NH, TH, TH),
+        intArrayOf(NH, NH, NH, NH, BH, BH))
   }
 
   /**
@@ -2711,10 +1997,7 @@ internal object RClip {
 
     constructor(next: PolygonNode?, x: Float, y: Float) {
       /* Make v[LEFT] and v[RIGHT] point to new vertex */
-      val vn = VertexNode(
-        x,
-        y
-      )
+      val vn = VertexNode(x, y)
       v[LEFT] = vn
       v[RIGHT] = vn
       this.next = next
@@ -2723,10 +2006,7 @@ internal object RClip {
     }
 
     fun add_right(x: Float, y: Float) {
-      val nv = VertexNode(
-        x,
-        y
-      )
+      val nv = VertexNode(x, y)
 
       /* Add vertex nv to the right end of the polygon's vertex list */
       proxy.v[RIGHT]!!.next = nv
@@ -2750,11 +2030,7 @@ internal object RClip {
     var top_node: PolygonNode? = null
     fun add_local_min(x: Float, y: Float): PolygonNode {
       val existing_min = top_node
-      top_node = PolygonNode(
-        existing_min,
-        x,
-        y
-      )
+      top_node = PolygonNode(existing_min, x, y)
       return top_node!!
     }
 
@@ -2954,34 +2230,32 @@ internal object RClip {
     }
 
     fun getNode(index: Int): EdgeNode {
-      return m_List[index] as EdgeNode
+      return m_List[index]
     }
 
     fun FWD_MIN(i: Int): Boolean {
-      val prev = m_List[PREV_INDEX(i, m_List.size)] as EdgeNode
-      val next = m_List[NEXT_INDEX(i, m_List.size)] as EdgeNode
-      val ith = m_List[i] as EdgeNode
-      return prev.vertex.y >= ith.vertex.y &&
-        next.vertex.y > ith.vertex.y
+      val prev = m_List[PREV_INDEX(i, m_List.size)]
+      val next = m_List[NEXT_INDEX(i, m_List.size)]
+      val ith = m_List[i]
+      return prev.vertex.y >= ith.vertex.y && next.vertex.y > ith.vertex.y
     }
 
     fun NOT_FMAX(i: Int): Boolean {
-      val next = m_List[NEXT_INDEX(i, m_List.size)] as EdgeNode
-      val ith = m_List[i] as EdgeNode
+      val next = m_List[NEXT_INDEX(i, m_List.size)]
+      val ith = m_List[i]
       return next.vertex.y > ith.vertex.y
     }
 
     fun REV_MIN(i: Int): Boolean {
-      val prev = m_List[PREV_INDEX(i, m_List.size)] as EdgeNode
-      val next = m_List[NEXT_INDEX(i, m_List.size)] as EdgeNode
-      val ith = m_List[i] as EdgeNode
-      return prev.vertex.y > ith.vertex.y &&
-        next.vertex.y >= ith.vertex.y
+      val prev = m_List[PREV_INDEX(i, m_List.size)]
+      val next = m_List[NEXT_INDEX(i, m_List.size)]
+      val ith = m_List[i]
+      return prev.vertex.y > ith.vertex.y && next.vertex.y >= ith.vertex.y
     }
 
     fun NOT_RMAX(i: Int): Boolean {
-      val prev = m_List[PREV_INDEX(i, m_List.size)] as EdgeNode
-      val ith = m_List[i] as EdgeNode
+      val prev = m_List[PREV_INDEX(i, m_List.size)]
+      val ith = m_List[i]
       return prev.vertex.y > ith.vertex.y
     }
   }
@@ -3038,11 +2312,7 @@ internal object RClip {
     fun build_sbt(): FloatArray {
       val sbt = FloatArray(sbt_entries)
       var entries = 0
-      entries = inner_build_sbt(
-        entries,
-        sbt,
-        sb_tree
-      )
+      entries = inner_build_sbt(entries, sbt, sb_tree)
       check(entries == sbt_entries) { "Something went wrong buildign sbt from tree." }
       return sbt
     }
@@ -3050,20 +2320,12 @@ internal object RClip {
     private fun inner_build_sbt(entries: Int, sbt: FloatArray, sbt_node: ScanBeamTree?): Int {
       var entries = entries
       if (sbt_node!!.less != null) {
-        entries = inner_build_sbt(
-          entries,
-          sbt,
-          sbt_node.less
-        )
+        entries = inner_build_sbt(entries, sbt, sbt_node.less)
       }
       sbt[entries] = sbt_node.y
       entries++
       if (sbt_node.more != null) {
-        entries = inner_build_sbt(
-          entries,
-          sbt,
-          sbt_node.more
-        )
+        entries = inner_build_sbt(entries, sbt, sbt_node.more)
       }
       return entries
     }
@@ -3092,10 +2354,7 @@ internal object RClip {
       /* Process each AET edge */
       var edge = aet.top_node
       while (edge != null) {
-        if (edge.bstate[ABOVE] === BundleState.BUNDLE_HEAD ||
-          edge.bundle[ABOVE][CLIP] != 0 ||
-          edge.bundle[ABOVE][SUBJ] != 0
-        ) {
+        if (edge.bstate[ABOVE] === BundleState.BUNDLE_HEAD || edge.bundle[ABOVE][CLIP] != 0 || edge.bundle[ABOVE][SUBJ] != 0) {
           st = add_st_edge(st, this, edge, dy)
         }
         edge = edge.next

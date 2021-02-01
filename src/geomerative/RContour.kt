@@ -72,7 +72,7 @@ class RContour : RGeomElem {
     points = contourpoints
   }
 
-  constructor() {}
+  constructor()
   constructor(c: RContour) : this(c.points.clone()) {
     isHole = c.isHole
     isContributing = c.isContributing

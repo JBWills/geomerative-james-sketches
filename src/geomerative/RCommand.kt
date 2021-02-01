@@ -103,24 +103,15 @@ class RCommand(
    * @param c  the object of which to make the copy
    * @param sp  the start point of the command to be created
    */
-  constructor(c: RCommand, sp: RPoint? = null, ep: RPoint? = null) : this(
-    sp ?: c.startPoint,
-    ep ?: c.endPoint,
-    c.controlPoints.clone(),
-    c.commandType
-  )
+  constructor(c: RCommand, sp: RPoint? = null, ep: RPoint? = null) : this(sp ?: c.startPoint, ep
+    ?: c.endPoint, c.controlPoints.clone(), c.commandType)
 
   /**
    * Create a LINETO command object with specific start and end points.
    * @param sp  the start point of the command to be created
    * @param ep  the end point of the command to be created
    */
-  constructor(sp: RPoint, ep: RPoint) : this(
-    sp,
-    ep,
-    arrayOf(),
-    LINETO
-  )
+  constructor(sp: RPoint, ep: RPoint) : this(sp, ep, arrayOf(), LINETO)
 
   /**
    * Create a LINETO command object with specific start and end point coordinates.
@@ -129,10 +120,9 @@ class RCommand(
    * @param epx  the x coordinate of the end point of the command to be created
    * @param epy  the y coordinate of the end point of the command to be created
    */
-  constructor(spx: Float, spy: Float, epx: Float, epy: Float) : this(
-    RPoint(spx, spy),
-    RPoint(epx, epy)
-  )
+  constructor(
+    spx: Float, spy: Float, epx: Float, epy: Float,
+  ) : this(RPoint(spx, spy), RPoint(epx, epy))
 
   /**
    * Create a QUADBEZIERTO command object with specific start, control and end point coordinates.
@@ -151,11 +141,9 @@ class RCommand(
    * @param epx  the x coordinate of the end point of the command to be created
    * @param epy  the y coordinate of the end point of the command to be created
    */
-  constructor(spx: Float, spy: Float, cp1x: Float, cp1y: Float, epx: Float, epy: Float) : this(
-    RPoint(spx, spy),
-    RPoint(cp1x, cp1y),
-    RPoint(epx, epy)
-  )
+  constructor(
+    spx: Float, spy: Float, cp1x: Float, cp1y: Float, epx: Float, epy: Float,
+  ) : this(RPoint(spx, spy), RPoint(cp1x, cp1y), RPoint(epx, epy))
 
   /**
    * Create a CUBICBEZIERTO command object with specific start, control and end point coordinates.
@@ -164,12 +152,9 @@ class RCommand(
    * @param cp2  the second control point of the command to be created
    * @param ep  the end point of the command to be created
    */
-  constructor(sp: RPoint, cp1: RPoint, cp2: RPoint, ep: RPoint) : this(
-    sp,
-    ep,
-    arrayOf(cp1, cp2),
-    QUADBEZIERTO
-  )
+  constructor(
+    sp: RPoint, cp1: RPoint, cp2: RPoint, ep: RPoint,
+  ) : this(sp, ep, arrayOf(cp1, cp2), QUADBEZIERTO)
 
   /**
    * Create a CUBICBEZIERTO command object with specific start, control and end point coordinates.
@@ -185,12 +170,7 @@ class RCommand(
   constructor(
     spx: Float, spy: Float, cp1x: Float, cp1y: Float, cp2x: Float, cp2y: Float, epx: Float,
     epy: Float,
-  ) : this(
-    RPoint(spx, spy),
-    RPoint(cp1x, cp1y),
-    RPoint(cp2x, cp2y),
-    RPoint(epx, epy)
-  )
+  ) : this(RPoint(spx, spy), RPoint(cp1x, cp1y), RPoint(cp2x, cp2y), RPoint(epx, epy))
 
   /**
    * @invisible
@@ -233,12 +213,13 @@ class RCommand(
     segmentAngleTol = oldSegmentAngleTol
     segmentCuspLimit = oldSegmentCuspLimit
 
-    /* Parameters for UNIFORMLENGTH (dependent of the PGraphics on which drawing) */commandSegmentLength =
-      oldSegmentLength
+    /* Parameters for UNIFORMLENGTH (dependent of the PGraphics on which drawing) */
+    commandSegmentLength = oldSegmentLength
     segmentOffset = oldSegmentOffset
     segmentAccOffset = oldSegmentAccOffset
 
-    /* Parameters for UNIFORMSTEP */segmentSteps = oldSegmentSteps
+    /* Parameters for UNIFORMSTEP */
+    segmentSteps = oldSegmentSteps
     segmentLines = oldSegmentLines
   }
 
@@ -529,8 +510,7 @@ class RCommand(
 
     return arrayOf(
       createBezier4(startPoint, triangleMatrix[1][0], triangleMatrix[2][0], triangleMatrix[3][0]),
-      createBezier4(triangleMatrix[3][0], triangleMatrix[2][1], triangleMatrix[1][2], endPoint)
-    )
+      createBezier4(triangleMatrix[3][0], triangleMatrix[2][1], triangleMatrix[1][2], endPoint))
   }
 
   private fun splitQuadBezier(t: Float): Array<RCommand> {
@@ -552,8 +532,7 @@ class RCommand(
       }
     }
 
-    return arrayOf(
-      createBezier3(startPoint, triangleMatrix[1][0], triangleMatrix[2][0]),
+    return arrayOf(createBezier3(startPoint, triangleMatrix[1][0], triangleMatrix[2][0]),
       createBezier3(triangleMatrix[2][0], triangleMatrix[1][1], endPoint))
   }
 
@@ -575,10 +554,8 @@ class RCommand(
         triangleMatrix[i][j] = (1 - t) * last + t * next
       }
     }
-    return arrayOf(
-      createLine(startPoint, triangleMatrix[1][0]),
-      createLine(triangleMatrix[1][0], endPoint)
-    )
+    return arrayOf(createLine(startPoint, triangleMatrix[1][0]),
+      createLine(triangleMatrix[1][0], endPoint))
   }
 
   private fun quadBezierAdaptative() {
@@ -698,10 +675,8 @@ class RCommand(
     when ((d2b shl 1) + d3b) {
       0 ->         // All collinear OR p1==p4
         //----------------------
-        if (abs(x1 + x3 - x2 - x2) +
-          abs(y1 + y3 - y2 - y2) +
-          abs(x2 + x4 - x3 - x3) +
-          abs(y2 + y4 - y3 - y3) <= segmentDistTolMnhttn
+        if (abs(x1 + x3 - x2 - x2) + abs(y1 + y3 - y2 - y2) + abs(x2 + x4 - x3 - x3) + abs(
+            y2 + y4 - y3 - y3) <= segmentDistTolMnhttn
         ) {
           addCurvePoint(RPoint(x1234, y1234))
           return
@@ -749,10 +724,7 @@ class RCommand(
           }
           if (segmentCuspLimit != 0f) {
             if (da1 > segmentCuspLimit) {
-              addCurvePoint(RPoint(
-                x2,
-                y2
-              ))
+              addCurvePoint(RPoint(x2, y2))
               return
             }
           }
@@ -764,27 +736,15 @@ class RCommand(
           // we tend to finish subdivisions.
           //----------------------
           if (segmentAngleTol < segmentAngleTolEpsilon) {
-            addCurvePoint(RPoint(
-              x23,
-              y23
-            ))
+            addCurvePoint(RPoint(x23, y23))
             return
           }
 
           // Angle & Cusp Condition
           //----------------------
-          val a23 = atan2((
-            y3 - y2), (
-            x3 - x2
-            ))
-          da1 = abs(a23 - atan2((
-            y2 - y1), (
-            x2 - x1
-            )))
-          da2 = abs(atan2((
-            y4 - y3), (
-            x4 - x3
-            )) - a23)
+          val a23 = atan2((y3 - y2), (x3 - x2))
+          da1 = abs(a23 - atan2((y2 - y1), (x2 - x1)))
+          da2 = abs(atan2((y4 - y3), (x4 - x3)) - a23)
           if (da1 >= Math.PI.toFloat()) da1 = 2 * Math.PI.toFloat() - da1
           if (da2 >= Math.PI.toFloat()) da2 = 2 * Math.PI.toFloat() - da2
           if (da1 + da2 < segmentAngleTol) {
@@ -808,28 +768,8 @@ class RCommand(
 
     // Continue subdivision
     //----------------------
-    cubicBezierAdaptativeRecursive(
-      x1,
-      y1,
-      x12,
-      y12,
-      x123,
-      y123,
-      x1234,
-      y1234,
-      level + 1
-    )
-    cubicBezierAdaptativeRecursive(
-      x1234,
-      y1234,
-      x234,
-      y234,
-      x34,
-      y34,
-      x4,
-      y4,
-      level + 1
-    )
+    cubicBezierAdaptativeRecursive(x1, y1, x12, y12, x123, y123, x1234, y1234, level + 1)
+    cubicBezierAdaptativeRecursive(x1234, y1234, x234, y234, x34, y34, x4, y4, level + 1)
   }
 
   private fun lineUniformStep() {
@@ -848,8 +788,7 @@ class RCommand(
     var fy: Float = startPoint.y
     val fdy: Float = (endPoint.y - startPoint.y) * dt
     for (loop in 0 until steps) {
-      addCurvePoint(RPoint(fx,
-        fy))
+      addCurvePoint(RPoint(fx, fy))
       fx += fdx
       fy += fdy
     }
@@ -867,9 +806,9 @@ class RCommand(
       val dy2 = controlPoints[1].y - controlPoints[0].y
       val dx3 = endPoint.x - controlPoints[1].x
       val dy3 = endPoint.y - controlPoints[1].y
-      val len = sqrt((dx1 * dx1 + dy1 * dy1)) +
-        sqrt((dx2 * dx2 + dy2 * dy2)) +
-        sqrt((dx3 * dx3 + dy3 * dy3))
+      val len =
+        sqrt((dx1 * dx1 + dy1 * dy1)) + sqrt((dx2 * dx2 + dy2 * dy2)) + sqrt(
+          (dx3 * dx3 + dy3 * dy3))
       steps = (len * 0.25).toInt()
       if (steps < 4) {
         steps = 4
@@ -902,8 +841,7 @@ class RCommand(
     fddy = fddPer2y + fddPer2y
     val fdddPer6y: Float = fdddPer2y * (1.0f / 3f)
     for (loop in 0 until steps) {
-      addCurvePoint(RPoint(fx,
-        fy))
+      addCurvePoint(RPoint(fx, fy))
       fx += fdx + fddPer2x + fdddPer6x
       fdx += fddx + fdddPer2x
       fddx += fdddx
@@ -924,8 +862,7 @@ class RCommand(
       val dy1 = controlPoints[0].y - startPoint.y
       val dx2 = endPoint.x - controlPoints[0].x
       val dy2 = endPoint.y - controlPoints[0].y
-      val len = sqrt((dx1 * dx1 + dy1 * dy1)) + sqrt(
-        (dx2 * dx2 + dy2 * dy2))
+      val len = sqrt((dx1 * dx1 + dy1 * dy1)) + sqrt((dx2 * dx2 + dy2 * dy2))
       steps = (len * 0.25).toInt()
       if (steps < 4) steps = 4
     }
@@ -944,8 +881,7 @@ class RCommand(
     fddPer2y = (startPoint.y - 2f * controlPoints[0].y + endPoint.y) * temp
     fddy = fddPer2y + fddPer2y
     for (loop in 0 until steps) {
-      addCurvePoint(RPoint(fx,
-        fy))
+      addCurvePoint(RPoint(fx, fy))
       fx += fdx + fddPer2x
       fdx += fddx
       fy += fdy + fddPer2y
@@ -979,16 +915,14 @@ class RCommand(
     var loop = 0
     while (loop <= steps) {
 
-      /* Add point to curve if segment length is reached */if (untilPoint <= 0) {
-        addCurvePoint(RPoint(
-          fx,
-          fy
-        ))
+      /* Add point to curve if segment length is reached */
+      if (untilPoint <= 0) {
+        addCurvePoint(RPoint(fx, fy))
         untilPoint += commandSegmentLength
       }
 
-      /* Add segment differential to segment length */untilPoint -= sqrt(
-        (fdx * fdx + fdy * fdy)) // Eventually try other distance measures
+      /* Add segment differential to segment length */
+      untilPoint -= sqrt((fdx * fdx + fdy * fdy)) // Eventually try other distance measures
       fx += fdx
       fy += fdy
       loop++
@@ -1005,8 +939,7 @@ class RCommand(
     val dy1 = controlPoints[0].y - startPoint.y
     val dx2 = endPoint.x - controlPoints[0].x
     val dy2 = endPoint.y - controlPoints[0].y
-    val len =
-      sqrt((dx1 * dx1 + dy1 * dy1)) + sqrt((dx2 * dx2 + dy2 * dy2))
+    val len = sqrt((dx1 * dx1 + dy1 * dy1)) + sqrt((dx2 * dx2 + dy2 * dy2))
     var steps: Float = (len * 2)
     if (steps < 4) steps = 4f
     val dt = 1f / steps
@@ -1029,15 +962,14 @@ class RCommand(
     var loop = 0
     while (loop <= steps) {
 
-      /* Add point to curve if segment length is reached */if (untilPoint <= 0) {
-        addCurvePoint(RPoint(
-          fx,
-          fy
-        ))
+      /* Add point to curve if segment length is reached */
+      if (untilPoint <= 0) {
+        addCurvePoint(RPoint(fx, fy))
         untilPoint += commandSegmentLength
       }
 
-      /* Add segment differential to segment length */fix = fdx + fddPer2x
+      /* Add segment differential to segment length */
+      fix = fdx + fddPer2x
       fiy = fdy + fddPer2y
       untilPoint -= sqrt((fix * fix + fiy * fiy)) // Eventually try other distance measures
       fx += fix
@@ -1060,9 +992,8 @@ class RCommand(
     val dy2 = controlPoints[1].y - controlPoints[0].y
     val dx3 = endPoint.x - controlPoints[1].x
     val dy3 = endPoint.y - controlPoints[1].y
-    val len = sqrt((dx1 * dx1 + dy1 * dy1)) +
-      sqrt((dx2 * dx2 + dy2 * dy2)) +
-      sqrt((dx3 * dx3 + dy3 * dy3))
+    val len =
+      sqrt((dx1 * dx1 + dy1 * dy1)) + sqrt((dx2 * dx2 + dy2 * dy2)) + sqrt((dx3 * dx3 + dy3 * dy3))
     var steps: Float = (len * 2)
     if (steps < 4) steps = 4f
     val dt = 1f / steps
@@ -1097,15 +1028,14 @@ class RCommand(
     var loop = 0
     while (loop < steps) {
 
-      /* Add point to curve if segment length is reached */if (untilPoint <= 0) {
-        addCurvePoint(RPoint(
-          fx,
-          fy
-        ))
+      /* Add point to curve if segment length is reached */
+      if (untilPoint <= 0) {
+        addCurvePoint(RPoint(fx, fy))
         untilPoint += commandSegmentLength
       }
 
-      /* Add segment differential to segment length */fix = fdx + fddPer2x + fdddPer6x
+      /* Add segment differential to segment length */
+      fix = fdx + fddPer2x + fdddPer6x
       fiy = fdy + fddPer2y + fdddPer6y
       untilPoint -= sqrt((fix * fix + fiy * fiy)) // Eventually try other distance measures
       fx += fix
@@ -1128,8 +1058,7 @@ class RCommand(
     val dy1 = controlPoints[0].y - startPoint.y
     val dx2 = endPoint.x - controlPoints[0].x
     val dy2 = endPoint.y - controlPoints[0].y
-    val len =
-      sqrt((dx1 * dx1 + dy1 * dy1)) + sqrt((dx2 * dx2 + dy2 * dy2))
+    val len = sqrt((dx1 * dx1 + dy1 * dy1)) + sqrt((dx2 * dx2 + dy2 * dy2))
     var steps: Float = (len * 2)
     if (steps < 4) steps = 4f
     val dt = 1f / steps
@@ -1152,7 +1081,8 @@ class RCommand(
     var loop = 0
     while (loop <= steps) {
 
-      /* Add segment differential to segment length */fix = fdx + fddPer2x
+      /* Add segment differential to segment length */
+      fix = fdx + fddPer2x
       fiy = fdy + fddPer2y
       totallen += sqrt((fix * fix + fiy * fiy)) // Eventually try other distance measures
       fx += fix
@@ -1171,9 +1101,8 @@ class RCommand(
     val dy2 = controlPoints[1].y - controlPoints[0].y
     val dx3 = endPoint.x - controlPoints[1].x
     val dy3 = endPoint.y - controlPoints[1].y
-    val len = sqrt((dx1 * dx1 + dy1 * dy1)) +
-      sqrt((dx2 * dx2 + dy2 * dy2)) +
-      sqrt((dx3 * dx3 + dy3 * dy3))
+    val len =
+      sqrt((dx1 * dx1 + dy1 * dy1)) + sqrt((dx2 * dx2 + dy2 * dy2)) + sqrt((dx3 * dx3 + dy3 * dy3))
     var steps: Float = (len * 2)
     if (steps < 4) steps = 4f
     val dt = 1f / steps
@@ -1207,7 +1136,8 @@ class RCommand(
     val fdddPer6y: Float = fdddPer2y * (1.0f / 3f)
     var loop = 0
     while (loop < steps) {
-      /* Add segment differential to segment length */fix = fdx + fddPer2x + fdddPer6x
+      /* Add segment differential to segment length */
+      fix = fdx + fddPer2x + fdddPer6x
       fiy = fdy + fddPer2y + fdddPer6y
       totallen += sqrt((fix * fix + fiy * fiy)) // Eventually try other distance measures
       fx += fix
@@ -1361,42 +1291,25 @@ class RCommand(
     var segmentLines = false
     fun createLine(start: RPoint, end: RPoint): RCommand = RCommand(start, end)
 
-    fun createLine(startx: Float, starty: Float, endx: Float, endy: Float): RCommand = createLine(
-      RPoint(startx, starty),
-      RPoint(endx, endy)
-    )
+    fun createLine(startx: Float, starty: Float, endx: Float, endy: Float): RCommand =
+      createLine(RPoint(startx, starty), RPoint(endx, endy))
 
-    fun createBezier3(start: RPoint, cp1: RPoint, end: RPoint): RCommand = RCommand(
-      startPoint = start,
-      endPoint = end,
-      arrayOf(cp1),
-      QUADBEZIERTO
-    )
+    fun createBezier3(start: RPoint, cp1: RPoint, end: RPoint): RCommand =
+      RCommand(startPoint = start, endPoint = end, arrayOf(cp1), QUADBEZIERTO)
 
     fun createBezier3(
       startx: Float, starty: Float, cp1x: Float, cp1y: Float, endx: Float, endy: Float,
-    ): RCommand = createBezier3(
-      RPoint(startx, starty),
-      RPoint(cp1x, cp1y),
-      RPoint(endx, endy)
-    )
+    ): RCommand = createBezier3(RPoint(startx, starty), RPoint(cp1x, cp1y), RPoint(endx, endy))
 
-    fun createBezier4(start: RPoint, cp1: RPoint, cp2: RPoint, end: RPoint): RCommand = RCommand(
-      startPoint = start,
-      endPoint = end,
-      arrayOf(cp1, cp2),
-      CUBICBEZIERTO
-    )
+    fun createBezier4(start: RPoint, cp1: RPoint, cp2: RPoint, end: RPoint): RCommand =
+      RCommand(startPoint = start, endPoint = end, arrayOf(cp1, cp2), CUBICBEZIERTO)
 
     fun createBezier4(
       startx: Float, starty: Float, cp1x: Float, cp1y: Float, cp2x: Float, cp2y: Float, endx: Float,
       endy: Float,
-    ): RCommand = createBezier4(
-      RPoint(startx, starty),
-      RPoint(cp1x, cp1y),
-      RPoint(cp2x, cp2y),
-      RPoint(endx, endy)
-    )
+    ): RCommand =
+      createBezier4(RPoint(startx, starty), RPoint(cp1x, cp1y), RPoint(cp2x, cp2y),
+        RPoint(endx, endy))
 
     /**
      * Use this to set the segmentator type.  ADAPTATIVE segmentator minimizes the number of segments avoiding perceptual artifacts like angles or cusps.  Use this in order to have Polygons and Meshes with the fewest possible vertices.  This can be useful when using or drawing a lot the same Polygon or Mesh deriving from this Shape.  UNIFORMLENGTH segmentator is the slowest segmentator and it segments the curve on segments of equal length.  This can be useful for very specific applications when for example drawing incrementaly a shape with a uniform speed.  UNIFORMSTEP segmentator is the fastest segmentator and it segments the curve based on a constant value of the step of the curve parameter, or on the number of segments wanted.  This can be useful when segmpointsentating very often a Shape or when we know the amount of segments necessary for our specific application.
@@ -1539,43 +1452,22 @@ class RCommand(
     fun lineLineClosest(c1: RCommand, c2: RCommand): RClosest {
       val c1b = RPoint(c1.startPoint)
       val c1e = RPoint(c1.endPoint)
-      val c2t1 = closestAdvFrom(
-        c2,
-        c1b
-      )
-      val c2t2 = closestAdvFrom(
-        c2,
-        c1e
-      )
+      val c2t1 = closestAdvFrom(c2, c1b)
+      val c2t2 = closestAdvFrom(c2, c1e)
       val c2p1 = c2.getPoint(c2t1)
       val c2p2 = c2.getPoint(c2t2)
       val dist1c2 = c2p1.dist(c1b)
       val dist2c2 = c2p2.dist(c1e)
       val c2b = RPoint(c2.startPoint)
       val c2e = RPoint(c2.endPoint)
-      val c1t1 = closestAdvFrom(
-        c1,
-        c2b
-      )
-      val c1t2 = closestAdvFrom(
-        c1,
-        c2e
-      )
+      val c1t1 = closestAdvFrom(c1, c2b)
+      val c1t2 = closestAdvFrom(c1, c2e)
       val c1p1 = c1.getPoint(c1t1)
       val c1p2 = c1.getPoint(c1t2)
       val dist1c1 = c1p1.dist(c2b)
       val dist2c1 = c1p2.dist(c2e)
       val result = RClosest()
-      result.distance = min(
-        min(
-          dist1c2,
-          dist2c2
-        ),
-        min(
-          dist1c1,
-          dist2c1
-        )
-      )
+      result.distance = min(min(dist1c2, dist2c2), min(dist1c1, dist2c1))
       result.closest = arrayOf()
       result.advancements = FloatArray(2)
       when (result.distance) {

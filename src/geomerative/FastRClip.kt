@@ -105,17 +105,12 @@ internal object FastRClip {
     val out_poly = TopPolygonNode() // used to create resulting RPolygon
 
     /* Test for trivial NULL result cases */
-    if (subj.isEmpty && clip.isEmpty ||
-      subj.isEmpty && (op == OperationType.GPC_INT || op == OperationType.GPC_DIFF) ||
-      clip.isEmpty && op == OperationType.GPC_INT
-    ) {
+    if (subj.isEmpty && clip.isEmpty || subj.isEmpty && (op == OperationType.GPC_INT || op == OperationType.GPC_DIFF) || clip.isEmpty && op == OperationType.GPC_INT) {
       return RPolygon()
     }
 
     /* Identify potentialy contributing contours */
-    if ((op == OperationType.GPC_INT || op == OperationType.GPC_DIFF) &&
-      !subj.isEmpty && !clip.isEmpty
-    ) {
+    if ((op == OperationType.GPC_INT || op == OperationType.GPC_DIFF) && !subj.isEmpty && !clip.isEmpty) {
       minimax_test(subj, clip, op)
     }
 
@@ -181,8 +176,7 @@ internal object FastRClip {
       var e1 = aet.top_node
 
       /* Set up bundle fields of first edge */
-      aet.top_node!!.bundle_above[aet.top_node!!.type] =
-        if (aet.top_node!!.top_y != yb) 1 else 0
+      aet.top_node!!.bundle_above[aet.top_node!!.type] = if (aet.top_node!!.top_y != yb) 1 else 0
       aet.top_node!!.bundle_above[if (aet.top_node!!.type == 0) 1 else 0] = 0
       aet.top_node!!.bstate_above = BundleState.UNBUNDLED
       var next_edge = aet.top_node!!.next
@@ -190,20 +184,14 @@ internal object FastRClip {
         val ne_type = next_edge.type
         val ne_type_opp = if (next_edge.type == 0) 1 else 0 //next edge type opposite
 
-        /* Set up bundle fields of next edge */next_edge.bundle_above[ne_type] =
-          if (next_edge.top_y != yb) 1 else 0
+        /* Set up bundle fields of next edge */
+        next_edge.bundle_above[ne_type] = if (next_edge.top_y != yb) 1 else 0
         next_edge.bundle_above[ne_type_opp] = 0
         next_edge.bstate_above = BundleState.UNBUNDLED
 
-        /* Bundle edges above the scanbeam boundary if they coincide */if (next_edge.bundle_above[ne_type] == 1) {
-          if (EQ(
-              e0!!.xb,
-              next_edge.xb
-            ) && EQ(
-              e0.dx,
-              next_edge.dx
-            ) && e0.top_y != yb
-          ) {
+        /* Bundle edges above the scanbeam boundary if they coincide */
+        if (next_edge.bundle_above[ne_type] == 1) {
+          if (EQ(e0!!.xb, next_edge.xb) && EQ(e0.dx, next_edge.dx) && e0.top_y != yb) {
             next_edge.bundle_above[ne_type] =
               next_edge.bundle_above[ne_type] xor e0.bundle_above[ne_type]
             next_edge.bundle_above[ne_type_opp] = e0.bundle_above[ne_type_opp]
@@ -222,7 +210,8 @@ internal object FastRClip {
       var exists_subj = 0
       var cf: PolygonNode? = null
 
-      /* Process each edge at this scanbeam boundary */run {
+      /* Process each edge at this scanbeam boundary */
+      run {
         var edge = aet.top_node
         while (edge != null) {
           exists_clip = edge!!.bundle_above[CLIP] + (edge!!.bundle_below_clip shl 1)
@@ -236,21 +225,17 @@ internal object FastRClip {
             var bl = 0
             var tr = 0
             var tl = 0
-            /* Determine contributing status and quadrant occupancies */if (op == OperationType.GPC_DIFF || op == OperationType.GPC_INT) {
-              contributing = exists_clip != 0 && (parity_subj != 0 || horiz_subj != 0) ||
-                exists_subj != 0 && (parity_clip != 0 || horiz_clip != 0) ||
-                exists_clip != 0 && exists_subj != 0 && parity_clip == parity_subj
+            /* Determine contributing status and quadrant occupancies */
+            if (op == OperationType.GPC_DIFF || op == OperationType.GPC_INT) {
+              contributing =
+                exists_clip != 0 && (parity_subj != 0 || horiz_subj != 0) || exists_subj != 0 && (parity_clip != 0 || horiz_clip != 0) || exists_clip != 0 && exists_subj != 0 && parity_clip == parity_subj
               br = if (parity_clip != 0 && parity_subj != 0) 1 else 0
-              bl = if (parity_clip xor edge!!.bundle_above[CLIP] != 0 &&
-                parity_subj xor edge!!.bundle_above[SUBJ] != 0
-              ) 1 else 0
-              tr = if ((parity_clip xor if (horiz_clip != HState.NH) 1 else 0) != 0 &&
-                (parity_subj xor if (horiz_subj != HState.NH) 1 else 0) != 0
-              ) 1 else 0
+              bl =
+                if (parity_clip xor edge!!.bundle_above[CLIP] != 0 && parity_subj xor edge!!.bundle_above[SUBJ] != 0) 1 else 0
+              tr =
+                if ((parity_clip xor if (horiz_clip != HState.NH) 1 else 0) != 0 && (parity_subj xor if (horiz_subj != HState.NH) 1 else 0) != 0) 1 else 0
               tl =
-                if (parity_clip xor (if (horiz_clip != HState.NH) 1 else 0) xor edge!!.bundle_below_clip != 0 &&
-                  parity_subj xor (if (horiz_subj != HState.NH) 1 else 0) xor edge!!.bundle_below_subj != 0
-                ) 1 else 0
+                if (parity_clip xor (if (horiz_clip != HState.NH) 1 else 0) xor edge!!.bundle_below_clip != 0 && parity_subj xor (if (horiz_subj != HState.NH) 1 else 0) xor edge!!.bundle_below_subj != 0) 1 else 0
             } else if (op == OperationType.GPC_XOR) {
               contributing = exists_clip != 0 || exists_subj != 0
               br = parity_clip xor parity_subj
@@ -259,30 +244,27 @@ internal object FastRClip {
               tr =
                 parity_clip xor if (horiz_clip != HState.NH) 1 else 0 xor (parity_subj xor if (horiz_subj != HState.NH) 1 else 0)
               tl =
-                (parity_clip xor (if (horiz_clip != HState.NH) 1 else 0) xor edge!!.bundle_below_clip
-                  xor (parity_subj xor (if (horiz_subj != HState.NH) 1 else 0) xor edge!!.bundle_below_subj))
+                (parity_clip xor (if (horiz_clip != HState.NH) 1 else 0) xor edge!!.bundle_below_clip xor (parity_subj xor (if (horiz_subj != HState.NH) 1 else 0) xor edge!!.bundle_below_subj))
             } else if (op == OperationType.GPC_UNION) {
-              contributing = exists_clip != 0 && (parity_subj == 0 || horiz_subj != 0) ||
-                exists_subj != 0 && (parity_clip == 0 || horiz_clip != 0) ||
-                exists_clip != 0 && exists_subj != 0 && parity_clip == parity_subj
+              contributing =
+                exists_clip != 0 && (parity_subj == 0 || horiz_subj != 0) || exists_subj != 0 && (parity_clip == 0 || horiz_clip != 0) || exists_clip != 0 && exists_subj != 0 && parity_clip == parity_subj
               br = if (parity_clip != 0 || parity_subj != 0) 1 else 0
               bl =
                 if (parity_clip xor edge!!.bundle_above[CLIP] != 0 || parity_subj xor edge!!.bundle_above[SUBJ] != 0) 1 else 0
-              tr = if ((parity_clip xor if (horiz_clip != HState.NH) 1 else 0) != 0 ||
-                (parity_subj xor if (horiz_subj != HState.NH) 1 else 0) != 0
-              ) 1 else 0
+              tr =
+                if ((parity_clip xor if (horiz_clip != HState.NH) 1 else 0) != 0 || (parity_subj xor if (horiz_subj != HState.NH) 1 else 0) != 0) 1 else 0
               tl =
-                if (parity_clip xor (if (horiz_clip != HState.NH) 1 else 0) xor edge!!.bundle_below_clip != 0 ||
-                  parity_subj xor (if (horiz_subj != HState.NH) 1 else 0) xor edge!!.bundle_below_subj != 0
-                ) 1 else 0
+                if (parity_clip xor (if (horiz_clip != HState.NH) 1 else 0) xor edge!!.bundle_below_clip != 0 || parity_subj xor (if (horiz_subj != HState.NH) 1 else 0) xor edge!!.bundle_below_subj != 0) 1 else 0
             } else {
               throw IllegalStateException("Unknown op")
             }
 
-            /* Update parity */parity_clip = parity_clip xor edge!!.bundle_above[CLIP]
+            /* Update parity */
+            parity_clip = parity_clip xor edge!!.bundle_above[CLIP]
             parity_subj = parity_subj xor edge!!.bundle_above[SUBJ]
 
-            /* Update horizontal state */if (exists_clip != 0) {
+            /* Update horizontal state */
+            if (exists_clip != 0) {
               horiz_clip = HState.next_h_state[horiz_clip][(exists_clip - 1 shl 1) + parity_clip]
             }
             if (exists_subj != 0) {
@@ -390,7 +372,8 @@ internal object FastRClip {
           if (prev_edge != null) prev_edge.next = next_edge else aet.top_node = next_edge
           if (next_edge != null) next_edge.prev = prev_edge
 
-          /* Copy bundle head state to the adjacent tail edge if required */if (edge!!.bstate_below === BundleState.BUNDLE_HEAD && prev_edge != null) {
+          /* Copy bundle head state to the adjacent tail edge if required */
+          if (edge!!.bstate_below === BundleState.BUNDLE_HEAD && prev_edge != null) {
             if (prev_edge.bstate_below === BundleState.BUNDLE_TAIL) {
               prev_edge.outp_below = edge!!.outp_below
               prev_edge.bstate_below = BundleState.UNBUNDLED
@@ -420,23 +403,16 @@ internal object FastRClip {
           e0 = intersect.ie0
           e1 = intersect.ie1
 
-          /* Only generate output for contributing intersections */if ((e0.bundle_above[CLIP] != 0 || e0.bundle_above[SUBJ] != 0) &&
-            (e1.bundle_above[CLIP] != 0 || e1.bundle_above[SUBJ] != 0)
-          ) {
+          /* Only generate output for contributing intersections */
+          if ((e0.bundle_above[CLIP] != 0 || e0.bundle_above[SUBJ] != 0) && (e1.bundle_above[CLIP] != 0 || e1.bundle_above[SUBJ] != 0)) {
             val p = e0.outp_above
             val q = e1.outp_above
             val ix = intersect.point_x
             val iy = intersect.point_y + yb
-            val in_clip = if (e0.bundle_above[CLIP] != 0 && e0.bside_clip == 0 ||
-              e1.bundle_above[CLIP] != 0 && e1.bside_clip != 0 ||
-              e0.bundle_above[CLIP] == 0 && e1.bundle_above[CLIP] == 0 &&
-              e0.bside_clip != 0 && e1.bside_clip != 0
-            ) 1 else 0
-            val in_subj = if (e0.bundle_above[SUBJ] != 0 && e0.bside_subj == 0 ||
-              e1.bundle_above[SUBJ] != 0 && e1.bside_subj != 0 ||
-              e0.bundle_above[SUBJ] == 0 && e1.bundle_above[SUBJ] == 0 &&
-              e0.bside_subj != 0 && e1.bside_subj != 0
-            ) 1 else 0
+            val in_clip =
+              if (e0.bundle_above[CLIP] != 0 && e0.bside_clip == 0 || e1.bundle_above[CLIP] != 0 && e1.bside_clip != 0 || e0.bundle_above[CLIP] == 0 && e1.bundle_above[CLIP] == 0 && e0.bside_clip != 0 && e1.bside_clip != 0) 1 else 0
+            val in_subj =
+              if (e0.bundle_above[SUBJ] != 0 && e0.bside_subj == 0 || e1.bundle_above[SUBJ] != 0 && e1.bside_subj != 0 || e0.bundle_above[SUBJ] == 0 && e1.bundle_above[SUBJ] == 0 && e0.bside_subj != 0 && e1.bside_subj != 0) 1 else 0
             var tr = 0
             var tl = 0
             var br = 0
@@ -448,24 +424,22 @@ internal object FastRClip {
                 if (in_clip xor e1.bundle_above[CLIP] != 0 && in_subj xor e1.bundle_above[SUBJ] != 0) 1 else 0
               br =
                 if (in_clip xor e0.bundle_above[CLIP] != 0 && in_subj xor e0.bundle_above[SUBJ] != 0) 1 else 0
-              bl = if (in_clip xor e1.bundle_above[CLIP] xor e0.bundle_above[CLIP] != 0 &&
-                in_subj xor e1.bundle_above[SUBJ] xor e0.bundle_above[SUBJ] != 0
-              ) 1 else 0
+              bl =
+                if (in_clip xor e1.bundle_above[CLIP] xor e0.bundle_above[CLIP] != 0 && in_subj xor e1.bundle_above[SUBJ] xor e0.bundle_above[SUBJ] != 0) 1 else 0
             } else if (op == OperationType.GPC_XOR) {
               tr = in_clip xor in_subj
               tl = in_clip xor e1.bundle_above[CLIP] xor (in_subj xor e1.bundle_above[SUBJ])
               br = in_clip xor e0.bundle_above[CLIP] xor (in_subj xor e0.bundle_above[SUBJ])
-              bl = (in_clip xor e1.bundle_above[CLIP] xor e0.bundle_above[CLIP]
-                xor (in_subj xor e1.bundle_above[SUBJ] xor e0.bundle_above[SUBJ]))
+              bl =
+                (in_clip xor e1.bundle_above[CLIP] xor e0.bundle_above[CLIP] xor (in_subj xor e1.bundle_above[SUBJ] xor e0.bundle_above[SUBJ]))
             } else if (op == OperationType.GPC_UNION) {
               tr = if (in_clip != 0 || in_subj != 0) 1 else 0
               tl =
                 if (in_clip xor e1.bundle_above[CLIP] != 0 || in_subj xor e1.bundle_above[SUBJ] != 0) 1 else 0
               br =
                 if (in_clip xor e0.bundle_above[CLIP] != 0 || in_subj xor e0.bundle_above[SUBJ] != 0) 1 else 0
-              bl = if (in_clip xor e1.bundle_above[CLIP] xor e0.bundle_above[CLIP] != 0 ||
-                in_subj xor e1.bundle_above[SUBJ] xor e0.bundle_above[SUBJ] != 0
-              ) 1 else 0
+              bl =
+                if (in_clip xor e1.bundle_above[CLIP] xor e0.bundle_above[CLIP] != 0 || in_subj xor e1.bundle_above[SUBJ] xor e0.bundle_above[SUBJ] != 0) 1 else 0
             } else {
               throw IllegalStateException("Unknown op type, $op")
             }
@@ -529,8 +503,7 @@ internal object FastRClip {
           } /* End of contributing intersection conditional */
 
           /* Swap bundle sides in response to edge crossing */
-          if (e0.bundle_above[CLIP] != 0) e1.bside_clip =
-            if (e1.bside_clip == 0) 1 else 0
+          if (e0.bundle_above[CLIP] != 0) e1.bside_clip = if (e1.bside_clip == 0) 1 else 0
           if (e1.bundle_above[CLIP] != 0) e0.bside_clip = if (e0.bside_clip == 0) 1 else 0
           if (e0.bundle_above[SUBJ] != 0) e1.bside_subj = if (e1.bside_subj == 0) 1 else 0
           if (e1.bundle_above[SUBJ] != 0) e0.bside_subj = if (e0.bside_subj == 0) 1 else 0
@@ -599,7 +572,8 @@ internal object FastRClip {
       }
     } /* === END OF SCANBEAM PROCESSING ================================== */
 
-    /* Generate result polygon from out_poly */result = out_poly.getResult(polyClass)
+    /* Generate result polygon from out_poly */
+    result = out_poly.getResult(polyClass)
     return result
   }
 
@@ -610,16 +584,13 @@ internal object FastRClip {
     var tlist: PolygonNode? = null
     var nx = 0f
 
-    /* Test for trivial NULL result cases */if (subj.isEmpty && clip.isEmpty ||
-      subj.isEmpty && (op == OperationType.GPC_INT || op == OperationType.GPC_DIFF) ||
-      clip.isEmpty && op == OperationType.GPC_INT
-    ) {
+    /* Test for trivial NULL result cases */
+    if (subj.isEmpty && clip.isEmpty || subj.isEmpty && (op == OperationType.GPC_INT || op == OperationType.GPC_DIFF) || clip.isEmpty && op == OperationType.GPC_INT) {
       return RMesh()
     }
 
-    /* Identify potentialy contributing contours */if ((op == OperationType.GPC_INT || op == OperationType.GPC_DIFF) &&
-      !subj.isEmpty && !clip.isEmpty
-    ) {
+    /* Identify potentialy contributing contours */
+    if ((op == OperationType.GPC_INT || op == OperationType.GPC_DIFF) && !subj.isEmpty && !clip.isEmpty) {
       minimax_test(subj, clip, op)
     }
 
@@ -633,7 +604,8 @@ internal object FastRClip {
       build_lmt(lmt_table, sbte, clip, CLIP, op)
     }
 
-    /* Return a NULL result if no contours contribute */if (lmt_table.top_node == null) {
+    /* Return a NULL result if no contours contribute */
+    if (lmt_table.top_node == null) {
       return RMesh()
     }
 
@@ -642,14 +614,16 @@ internal object FastRClip {
     var parity_clip = LEFT
     var parity_subj = LEFT
 
-    /* Invert clip polygon for difference operation */if (op == OperationType.GPC_DIFF) {
+    /* Invert clip polygon for difference operation */
+    if (op == OperationType.GPC_DIFF) {
       parity_clip = RIGHT
     }
     var local_min = lmt_table.top_node
     val aet = AetTree()
     var scanbeam = 0
 
-    /* Process each scanbeam */while (scanbeam < sbt.size) {
+    /* Process each scanbeam */
+    while (scanbeam < sbt.size) {
       /* Set yb and yt to the bottom and top of the scanbeam */
       val yb = sbt[scanbeam++]
       var yt = 0.0f
@@ -661,7 +635,8 @@ internal object FastRClip {
 
       /* === SCANBEAM BOUNDARY PROCESSING ================================ */
 
-      /* If LMT node corresponding to yb exists */if (local_min != null) {
+      /* If LMT node corresponding to yb exists */
+      if (local_min != null) {
         if (local_min.y == yb) {
           /* Add edges starting at this local minimum to the AET */
           var edge = local_min.first_bound
@@ -680,8 +655,8 @@ internal object FastRClip {
       var e0 = aet.top_node
       var e1 = aet.top_node
 
-      /* Set up bundle fields of first edge */aet.top_node!!.bundle_above[aet.top_node!!.type] =
-        if (aet.top_node!!.top_y != yb) 1 else 0
+      /* Set up bundle fields of first edge */
+      aet.top_node!!.bundle_above[aet.top_node!!.type] = if (aet.top_node!!.top_y != yb) 1 else 0
       aet.top_node!!.bundle_above[if (aet.top_node!!.type == 0) 1 else 0] = 0
       aet.top_node!!.bstate_above = BundleState.UNBUNDLED
       var next_edge = aet.top_node!!.next
@@ -689,14 +664,14 @@ internal object FastRClip {
         val ne_type = next_edge.type
         val ne_type_opp = if (next_edge.type == 0) 1 else 0 //next edge type opposite
 
-        /* Set up bundle fields of next edge */next_edge.bundle_above[ne_type] =
-          if (next_edge.top_y != yb) 1 else 0
+        /* Set up bundle fields of next edge */
+        next_edge.bundle_above[ne_type] = if (next_edge.top_y != yb) 1 else 0
         next_edge.bundle_above[ne_type_opp] = 0
         next_edge.bstate_above = BundleState.UNBUNDLED
 
-        /* Bundle edges above the scanbeam boundary if they coincide */if (next_edge.bundle_above[ne_type] == 1) {
-          if (EQ(e0!!.xb, next_edge.xb) && EQ(e0.dx, next_edge.dx) && e0.top_y != yb
-          ) {
+        /* Bundle edges above the scanbeam boundary if they coincide */
+        if (next_edge.bundle_above[ne_type] == 1) {
+          if (EQ(e0!!.xb, next_edge.xb) && EQ(e0.dx, next_edge.dx) && e0.top_y != yb) {
             next_edge.bundle_above[ne_type] =
               next_edge.bundle_above[ne_type] xor e0.bundle_above[ne_type]
             next_edge.bundle_above[ne_type_opp] = e0.bundle_above[ne_type_opp]
@@ -731,21 +706,17 @@ internal object FastRClip {
             var bl = 0
             var tr = 0
             var tl = 0
-            /* Determine contributing status and quadrant occupancies */if (op == OperationType.GPC_DIFF || op == OperationType.GPC_INT) {
-              contributing = exists_clip != 0 && (parity_subj != 0 || horiz_subj != 0) ||
-                exists_subj != 0 && (parity_clip != 0 || horiz_clip != 0) ||
-                exists_clip != 0 && exists_subj != 0 && parity_clip == parity_subj
+            /* Determine contributing status and quadrant occupancies */
+            if (op == OperationType.GPC_DIFF || op == OperationType.GPC_INT) {
+              contributing =
+                exists_clip != 0 && (parity_subj != 0 || horiz_subj != 0) || exists_subj != 0 && (parity_clip != 0 || horiz_clip != 0) || exists_clip != 0 && exists_subj != 0 && parity_clip == parity_subj
               br = if (parity_clip != 0 && parity_subj != 0) 1 else 0
-              bl = if (parity_clip xor edge!!.bundle_above[CLIP] != 0 &&
-                parity_subj xor edge!!.bundle_above[SUBJ] != 0
-              ) 1 else 0
-              tr = if ((parity_clip xor if (horiz_clip != HState.NH) 1 else 0) != 0 &&
-                (parity_subj xor if (horiz_subj != HState.NH) 1 else 0) != 0
-              ) 1 else 0
+              bl =
+                if (parity_clip xor edge!!.bundle_above[CLIP] != 0 && parity_subj xor edge!!.bundle_above[SUBJ] != 0) 1 else 0
+              tr =
+                if ((parity_clip xor if (horiz_clip != HState.NH) 1 else 0) != 0 && (parity_subj xor if (horiz_subj != HState.NH) 1 else 0) != 0) 1 else 0
               tl =
-                if (parity_clip xor (if (horiz_clip != HState.NH) 1 else 0) xor edge!!.bundle_below_clip != 0 &&
-                  parity_subj xor (if (horiz_subj != HState.NH) 1 else 0) xor edge!!.bundle_below_subj != 0
-                ) 1 else 0
+                if (parity_clip xor (if (horiz_clip != HState.NH) 1 else 0) xor edge!!.bundle_below_clip != 0 && parity_subj xor (if (horiz_subj != HState.NH) 1 else 0) xor edge!!.bundle_below_subj != 0) 1 else 0
             } else if (op == OperationType.GPC_XOR) {
               contributing = exists_clip != 0 || exists_subj != 0
               br = parity_clip xor parity_subj
@@ -754,30 +725,27 @@ internal object FastRClip {
               tr =
                 parity_clip xor if (horiz_clip != HState.NH) 1 else 0 xor (parity_subj xor if (horiz_subj != HState.NH) 1 else 0)
               tl =
-                (parity_clip xor (if (horiz_clip != HState.NH) 1 else 0) xor edge!!.bundle_below_clip
-                  xor (parity_subj xor (if (horiz_subj != HState.NH) 1 else 0) xor edge!!.bundle_below_subj))
+                (parity_clip xor (if (horiz_clip != HState.NH) 1 else 0) xor edge!!.bundle_below_clip xor (parity_subj xor (if (horiz_subj != HState.NH) 1 else 0) xor edge!!.bundle_below_subj))
             } else if (op == OperationType.GPC_UNION) {
-              contributing = exists_clip != 0 && (parity_subj == 0 || horiz_subj != 0) ||
-                exists_subj != 0 && (parity_clip == 0 || horiz_clip != 0) ||
-                exists_clip != 0 && exists_subj != 0 && parity_clip == parity_subj
+              contributing =
+                exists_clip != 0 && (parity_subj == 0 || horiz_subj != 0) || exists_subj != 0 && (parity_clip == 0 || horiz_clip != 0) || exists_clip != 0 && exists_subj != 0 && parity_clip == parity_subj
               br = if (parity_clip != 0 || parity_subj != 0) 1 else 0
               bl =
                 if (parity_clip xor edge!!.bundle_above[CLIP] != 0 || parity_subj xor edge!!.bundle_above[SUBJ] != 0) 1 else 0
-              tr = if ((parity_clip xor if (horiz_clip != HState.NH) 1 else 0) != 0 ||
-                (parity_subj xor if (horiz_subj != HState.NH) 1 else 0) != 0
-              ) 1 else 0
+              tr =
+                if ((parity_clip xor if (horiz_clip != HState.NH) 1 else 0) != 0 || (parity_subj xor if (horiz_subj != HState.NH) 1 else 0) != 0) 1 else 0
               tl =
-                if (parity_clip xor (if (horiz_clip != HState.NH) 1 else 0) xor edge!!.bundle_below_clip != 0 ||
-                  parity_subj xor (if (horiz_subj != HState.NH) 1 else 0) xor edge!!.bundle_below_subj != 0
-                ) 1 else 0
+                if (parity_clip xor (if (horiz_clip != HState.NH) 1 else 0) xor edge!!.bundle_below_clip != 0 || parity_subj xor (if (horiz_subj != HState.NH) 1 else 0) xor edge!!.bundle_below_subj != 0) 1 else 0
             } else {
               throw IllegalStateException("Unknown op")
             }
 
-            /* Update parity */parity_clip = parity_clip xor edge!!.bundle_above[CLIP]
+            /* Update parity */
+            parity_clip = parity_clip xor edge!!.bundle_above[CLIP]
             parity_subj = parity_subj xor edge!!.bundle_above[SUBJ]
 
-            /* Update horizontal state */if (exists_clip != 0) {
+            /* Update horizontal state */
+            if (exists_clip != 0) {
               horiz_clip = HState.next_h_state[horiz_clip][(exists_clip - 1 shl 1) + parity_clip]
             }
             if (exists_subj != 0) {
@@ -896,7 +864,8 @@ internal object FastRClip {
           if (prev_edge != null) prev_edge.next = next_edge else aet.top_node = next_edge
           if (next_edge != null) next_edge.prev = prev_edge
 
-          /* Copy bundle head state to the adjacent tail edge if required */if (edge!!.bstate_below === BundleState.BUNDLE_HEAD && prev_edge != null) {
+          /* Copy bundle head state to the adjacent tail edge if required */
+          if (edge!!.bstate_below === BundleState.BUNDLE_HEAD && prev_edge != null) {
             if (prev_edge.bstate_below === BundleState.BUNDLE_TAIL) {
               prev_edge.outp_below = edge!!.outp_below
               prev_edge.bstate_below = BundleState.UNBUNDLED
@@ -926,51 +895,43 @@ internal object FastRClip {
           e0 = intersect.ie0
           e1 = intersect.ie1
 
-          /* Only generate output for contributing intersections */if ((e0.bundle_above[CLIP] != 0 || e0.bundle_above[SUBJ] != 0) &&
-            (e1.bundle_above[CLIP] != 0 || e1.bundle_above[SUBJ] != 0)
-          ) {
+          /* Only generate output for contributing intersections */
+          if ((e0.bundle_above[CLIP] != 0 || e0.bundle_above[SUBJ] != 0) && (e1.bundle_above[CLIP] != 0 || e1.bundle_above[SUBJ] != 0)) {
             val p = e0.outp_above
             val q = e1.outp_above
             val ix = intersect.point_x
             val iy = intersect.point_y + yb
-            val in_clip = if (e0.bundle_above[CLIP] != 0 && e0.bside_clip == 0 ||
-              e1.bundle_above[CLIP] != 0 && e1.bside_clip != 0 ||
-              e0.bundle_above[CLIP] == 0 && e1.bundle_above[CLIP] == 0 &&
-              e0.bside_clip != 0 && e1.bside_clip != 0
-            ) 1 else 0
-            val in_subj = if (e0.bundle_above[SUBJ] != 0 && e0.bside_subj == 0 ||
-              e1.bundle_above[SUBJ] != 0 && e1.bside_subj != 0 ||
-              e0.bundle_above[SUBJ] == 0 && e1.bundle_above[SUBJ] == 0 &&
-              e0.bside_subj != 0 && e1.bside_subj != 0
-            ) 1 else 0
+            val in_clip =
+              if (e0.bundle_above[CLIP] != 0 && e0.bside_clip == 0 || e1.bundle_above[CLIP] != 0 && e1.bside_clip != 0 || e0.bundle_above[CLIP] == 0 && e1.bundle_above[CLIP] == 0 && e0.bside_clip != 0 && e1.bside_clip != 0) 1 else 0
+            val in_subj =
+              if (e0.bundle_above[SUBJ] != 0 && e0.bside_subj == 0 || e1.bundle_above[SUBJ] != 0 && e1.bside_subj != 0 || e0.bundle_above[SUBJ] == 0 && e1.bundle_above[SUBJ] == 0 && e0.bside_subj != 0 && e1.bside_subj != 0) 1 else 0
             var tr = 0
             var tl = 0
             var br = 0
             var bl = 0
-            /* Determine quadrant occupancies */if (op == OperationType.GPC_DIFF || op == OperationType.GPC_INT) {
+            /* Determine quadrant occupancies */
+            if (op == OperationType.GPC_DIFF || op == OperationType.GPC_INT) {
               tr = if (in_clip != 0 && in_subj != 0) 1 else 0
               tl =
                 if (in_clip xor e1.bundle_above[CLIP] != 0 && in_subj xor e1.bundle_above[SUBJ] != 0) 1 else 0
               br =
                 if (in_clip xor e0.bundle_above[CLIP] != 0 && in_subj xor e0.bundle_above[SUBJ] != 0) 1 else 0
-              bl = if (in_clip xor e1.bundle_above[CLIP] xor e0.bundle_above[CLIP] != 0 &&
-                in_subj xor e1.bundle_above[SUBJ] xor e0.bundle_above[SUBJ] != 0
-              ) 1 else 0
+              bl =
+                if (in_clip xor e1.bundle_above[CLIP] xor e0.bundle_above[CLIP] != 0 && in_subj xor e1.bundle_above[SUBJ] xor e0.bundle_above[SUBJ] != 0) 1 else 0
             } else if (op == OperationType.GPC_XOR) {
               tr = in_clip xor in_subj
               tl = in_clip xor e1.bundle_above[CLIP] xor (in_subj xor e1.bundle_above[SUBJ])
               br = in_clip xor e0.bundle_above[CLIP] xor (in_subj xor e0.bundle_above[SUBJ])
-              bl = (in_clip xor e1.bundle_above[CLIP] xor e0.bundle_above[CLIP]
-                xor (in_subj xor e1.bundle_above[SUBJ] xor e0.bundle_above[SUBJ]))
+              bl =
+                (in_clip xor e1.bundle_above[CLIP] xor e0.bundle_above[CLIP] xor (in_subj xor e1.bundle_above[SUBJ] xor e0.bundle_above[SUBJ]))
             } else if (op == OperationType.GPC_UNION) {
               tr = if (in_clip != 0 || in_subj != 0) 1 else 0
               tl =
                 if (in_clip xor e1.bundle_above[CLIP] != 0 || in_subj xor e1.bundle_above[SUBJ] != 0) 1 else 0
               br =
                 if (in_clip xor e0.bundle_above[CLIP] != 0 || in_subj xor e0.bundle_above[SUBJ] != 0) 1 else 0
-              bl = if (in_clip xor e1.bundle_above[CLIP] xor e0.bundle_above[CLIP] != 0 ||
-                in_subj xor e1.bundle_above[SUBJ] xor e0.bundle_above[SUBJ] != 0
-              ) 1 else 0
+              bl =
+                if (in_clip xor e1.bundle_above[CLIP] xor e0.bundle_above[CLIP] != 0 || in_subj xor e1.bundle_above[SUBJ] xor e0.bundle_above[SUBJ] != 0) 1 else 0
             } else {
               throw IllegalStateException("Unknown op type, $op")
             }
@@ -1064,8 +1025,8 @@ internal object FastRClip {
             }
           } /* End of contributing intersection conditional */
 
-          /* Swap bundle sides in response to edge crossing */if (e0.bundle_above[CLIP] != 0) e1.bside_clip =
-            if (e1.bside_clip == 0) 1 else 0
+          /* Swap bundle sides in response to edge crossing */
+          if (e0.bundle_above[CLIP] != 0) e1.bside_clip = if (e1.bside_clip == 0) 1 else 0
           if (e1.bundle_above[CLIP] != 0) e0.bside_clip = if (e0.bside_clip == 0) 1 else 0
           if (e0.bundle_above[SUBJ] != 0) e1.bside_subj = if (e1.bside_subj == 0) 1 else 0
           if (e1.bundle_above[SUBJ] != 0) e0.bside_subj = if (e0.bside_subj == 0) 1 else 0
@@ -1161,19 +1122,13 @@ internal object FastRClip {
           while (lt != null || rt != null) {
             if (lt != null) {
               ltn = lt.next!!
-              strip.add(
-                lt.x,
-                lt.y
-              )
+              strip.add(lt.x, lt.y)
               v++
               lt = ltn
             }
             if (rt != null) {
               rtn = rt.next!!
-              strip.add(
-                rt.x,
-                rt.y
-              )
+              strip.add(rt.x, rt.y)
               v++
               rt = rtn
             }
@@ -1218,29 +1173,21 @@ internal object FastRClip {
   }
 
   private fun OPTIMAL(p: RPolygon, i: Int): Boolean {
-    return p.getY(PREV_INDEX(i, p.numPoints)) != p.getY(i) ||
-      p.getY(NEXT_INDEX(i, p.numPoints)) != p.getY(i)
+    return p.getY(PREV_INDEX(i, p.numPoints)) != p.getY(i) || p.getY(
+      NEXT_INDEX(i, p.numPoints)) != p.getY(i)
   }
 
   // TODO: demacro-ize this
   private fun VERTEX(e: EdgeNode?, p: Int, s: Int, x: Float, y: Float) {
     if (p == ABOVE) {
       if (s == RIGHT) {
-        e!!.outp_above!!.v_right = add_vertex(
-          e.outp_above!!.v_right,
-          x,
-          y
-        )
+        e!!.outp_above!!.v_right = add_vertex(e.outp_above!!.v_right, x, y)
       } else if (s == LEFT) {
-        e!!.outp_above!!.v_left = add_vertex(
-          e.outp_above!!.v_left,
-          x,
-          y
-        )
+        e!!.outp_above!!.v_left = add_vertex(e.outp_above!!.v_left, x, y)
       } else {
         throw IllegalStateException("bogus s value")
       }
-      e!!.outp_above!!.active++
+      e.outp_above!!.active++
     } else if (p == BELOW) {
       if (s == RIGHT) {
         e!!.outp_below!!.v_right = add_vertex(e.outp_below!!.v_right, x, y)
@@ -1249,7 +1196,7 @@ internal object FastRClip {
       } else {
         throw IllegalStateException("bogus s value")
       }
-      e!!.outp_below!!.active++
+      e.outp_below!!.active++
     } else {
       throw IllegalStateException("bogus p value")
     }
@@ -1296,7 +1243,8 @@ internal object FastRClip {
   private fun create_contour_bboxes(p: RPolygon): Array<RRectangle?> {
     val box = arrayOfNulls<RRectangle>(p.numInnerPoly)
 
-    /* Construct contour bounding boxes */for (c in 0 until p.numInnerPoly) {
+    /* Construct contour bounding boxes */
+    for (c in 0 until p.numInnerPoly) {
       val inner_poly = p.getInnerPoly(c)
       box[c] = inner_poly.bBox
     }
@@ -1310,16 +1258,16 @@ internal object FastRClip {
     val clip_num_poly = clip.numInnerPoly
     val o_table = Array(subj_num_poly) { BooleanArray(clip_num_poly) }
 
-    /* Check all subject contour bounding boxes against clip boxes */for (s in 0 until subj_num_poly) {
+    /* Check all subject contour bounding boxes against clip boxes */
+    for (s in 0 until subj_num_poly) {
       for (c in 0 until clip_num_poly) {
-        o_table[s][c] = !(s_bbox[s]!!.maxX < c_bbox[c]!!.minX ||
-          s_bbox[s]!!.minX > c_bbox[c]!!.maxX) &&
-          !(s_bbox[s]!!.maxY < c_bbox[c]!!.minY ||
-            s_bbox[s]!!.minY > c_bbox[c]!!.maxY)
+        o_table[s][c] =
+          !(s_bbox[s]!!.maxX < c_bbox[c]!!.minX || s_bbox[s]!!.minX > c_bbox[c]!!.maxX) && !(s_bbox[s]!!.maxY < c_bbox[c]!!.minY || s_bbox[s]!!.minY > c_bbox[c]!!.maxY)
       }
     }
 
-    /* For each clip contour, search for any subject contour overlaps */for (c in 0 until clip_num_poly) {
+    /* For each clip contour, search for any subject contour overlaps */
+    for (c in 0 until clip_num_poly) {
       var overlap = false
       var s = 0
       while (!overlap && s < subj_num_poly) {
@@ -1558,10 +1506,7 @@ internal object FastRClip {
           if (OPTIMAL(ip, i)) {
             val x = ip.getX(i)
             val y = ip.getY(i)
-            edge_table.addNode(
-              x,
-              y
-            )
+            edge_table.addNode(x, y)
 
             /* Record vertex in the scanbeam table */
             add_to_sbtree(sbte, ip.getY(i))
@@ -1575,16 +1520,10 @@ internal object FastRClip {
           if (edge_table.FWD_MIN(min)) {
             /* Search for the next local maximum... */
             var num_edges = 1
-            var max = NEXT_INDEX(
-              min,
-              num_vertices
-            )
+            var max = NEXT_INDEX(min, num_vertices)
             while (edge_table.NOT_FMAX(max)) {
               num_edges++
-              max = NEXT_INDEX(
-                max,
-                num_vertices
-              )
+              max = NEXT_INDEX(max, num_vertices)
             }
 
             /* Build the next edge list */
@@ -1599,10 +1538,7 @@ internal object FastRClip {
               ei.xb = ev.vertex_x
               ei.bot_x = ev.vertex_x
               ei.bot_y = ev.vertex_y
-              v = NEXT_INDEX(
-                v,
-                num_vertices
-              )
+              v = NEXT_INDEX(v, num_vertices)
               ev = edge_table.getNode(v)
               ei.top_x = ev.vertex_x
               ei.top_y = ev.vertex_y
@@ -1612,8 +1548,9 @@ internal object FastRClip {
               ei.outp_below = null
               ei.next = null
               ei.prev = null
-              ei.succ = if (num_edges > 1 && i < num_edges - 1) edge_table.getNode(
-                e_index + i + 1) else null
+              ei.succ =
+                if (num_edges > 1 && i < num_edges - 1) edge_table.getNode(
+                  e_index + i + 1) else null
               ei.pred = if (num_edges > 1 && i > 0) edge_table.getNode(e_index + i - 1) else null
               ei.next_bound = null
               ei.bside_clip = if (op == OperationType.GPC_DIFF) RIGHT else LEFT
@@ -1630,16 +1567,10 @@ internal object FastRClip {
           if (edge_table.REV_MIN(min)) {
             /* Search for the previous local maximum... */
             var num_edges = 1
-            var max = PREV_INDEX(
-              min,
-              num_vertices
-            )
+            var max = PREV_INDEX(min, num_vertices)
             while (edge_table.NOT_RMAX(max)) {
               num_edges++
-              max = PREV_INDEX(
-                max,
-                num_vertices
-              )
+              max = PREV_INDEX(max, num_vertices)
             }
 
             /* Build the previous edge list */
@@ -1654,10 +1585,7 @@ internal object FastRClip {
               ei.xb = ev.vertex_x
               ei.bot_x = ev.vertex_x
               ei.bot_y = ev.vertex_y
-              v = PREV_INDEX(
-                v,
-                num_vertices
-              )
+              v = PREV_INDEX(v, num_vertices)
               ev = edge_table.getNode(v)
               ei.top_x = ev.vertex_x
               ei.top_y = ev.vertex_y
@@ -1667,8 +1595,9 @@ internal object FastRClip {
               ei.outp_below = null
               ei.next = null
               ei.prev = null
-              ei.succ = if (num_edges > 1 && i < num_edges - 1) edge_table.getNode(
-                e_index + i + 1) else null
+              ei.succ =
+                if (num_edges > 1 && i < num_edges - 1) edge_table.getNode(
+                  e_index + i + 1) else null
               ei.pred = if (num_edges > 1 && i > 0) edge_table.getNode(e_index + i - 1) else null
               ei.next_bound = null
               ei.bside_clip = if (op == OperationType.GPC_DIFF) RIGHT else LEFT
@@ -1687,30 +1616,23 @@ internal object FastRClip {
     var st = st
     if (st == null) {
       /* Append edge onto the tail end of the ST */
-      st = StNode(
-        edge,
-        null
-      )
+      st = StNode(edge, null)
     } else {
       val den = st.xt - st.xb - (edge.xt - edge.xb)
 
-      /* If new edge and ST edge don't cross */if (edge.xt >= st.xt || edge.dx == st.dx || abs(
-          den) <= GPC_EPSILON
-      ) {
+      /* If new edge and ST edge don't cross */
+      if (edge.xt >= st.xt || edge.dx == st.dx || abs(den) <= GPC_EPSILON) {
         /* No intersection - insert edge here (before the ST edge) */
         val existing_node: StNode = st
-        st = StNode(
-          edge,
-          existing_node
-        )
+        st = StNode(edge, existing_node)
       } else {
         /* Compute intersection between new edge and ST edge */
         val r = (edge.xb - st.xb) / den
         val x = st.xb + r * (st.xt - st.xb)
         val y = r * dy
 
-        /* Insert the edge pointers and the intersection point in the IT */it.top_node =
-          add_intersection(it.top_node, st.edge, edge, x, y)
+        /* Insert the edge pointers and the intersection point in the IT */
+        it.top_node = add_intersection(it.top_node, st.edge, edge, x, y)
 
         /* Head further into the ST */
         st.prev = add_st_edge(st.prev, it, edge, dy)
@@ -1832,8 +1754,8 @@ internal object FastRClip {
 
     /* Horizontal edge state transitions within scanbeam boundary */
     val next_h_state =
-      arrayOf(intArrayOf(BH, TH, TH, BH, NH, NH), intArrayOf(NH, NH, NH, NH, TH, TH), intArrayOf(
-        NH, NH, NH, NH, BH, BH))
+      arrayOf(intArrayOf(BH, TH, TH, BH, NH, NH), intArrayOf(NH, NH, NH, NH, TH, TH),
+        intArrayOf(NH, NH, NH, NH, BH, BH))
   }
 
   /**
@@ -1984,7 +1906,8 @@ internal object FastRClip {
             v = v.next
           }
 
-          /* Record valid vertex counts in the active field */if (nv > 2) {
+          /* Record valid vertex counts in the active field */
+          if (nv > 2) {
             polygon.active = nv
             nc++
           } else {
@@ -2035,10 +1958,7 @@ internal object FastRClip {
             // ------------------------------------------------------------------------
             var vtx = poly_node.proxy.v_left
             while (vtx != null) {
-              contour.addPoint(
-                vtx.x,
-                vtx.y
-              )
+              contour.addPoint(vtx.x, vtx.y)
               vtx = vtx.next
             }
             if (num_contours > 0) {
@@ -2169,34 +2089,32 @@ internal object FastRClip {
     }
 
     fun getNode(index: Int): EdgeNode {
-      return edges[index] as EdgeNode
+      return edges[index]
     }
 
     fun FWD_MIN(i: Int): Boolean {
-      val prev = edges[PREV_INDEX(i, edges.size)] as EdgeNode
-      val next = edges[NEXT_INDEX(i, edges.size)] as EdgeNode
-      val ith = edges[i] as EdgeNode
-      return prev.vertex_y >= ith.vertex_y &&
-        next.vertex_y > ith.vertex_y
+      val prev = edges[PREV_INDEX(i, edges.size)]
+      val next = edges[NEXT_INDEX(i, edges.size)]
+      val ith = edges[i]
+      return prev.vertex_y >= ith.vertex_y && next.vertex_y > ith.vertex_y
     }
 
     fun NOT_FMAX(i: Int): Boolean {
-      val next = edges[NEXT_INDEX(i, edges.size)] as EdgeNode
-      val ith = edges[i] as EdgeNode
+      val next = edges[NEXT_INDEX(i, edges.size)]
+      val ith = edges[i]
       return next.vertex_y > ith.vertex_y
     }
 
     fun REV_MIN(i: Int): Boolean {
-      val prev = edges[PREV_INDEX(i, edges.size)] as EdgeNode
-      val next = edges[NEXT_INDEX(i, edges.size)] as EdgeNode
-      val ith = edges[i] as EdgeNode
-      return prev.vertex_y > ith.vertex_y &&
-        next.vertex_y >= ith.vertex_y
+      val prev = edges[PREV_INDEX(i, edges.size)]
+      val next = edges[NEXT_INDEX(i, edges.size)]
+      val ith = edges[i]
+      return prev.vertex_y > ith.vertex_y && next.vertex_y >= ith.vertex_y
     }
 
     fun NOT_RMAX(i: Int): Boolean {
-      val prev = edges[PREV_INDEX(i, edges.size)] as EdgeNode
-      val ith = edges[i] as EdgeNode
+      val prev = edges[PREV_INDEX(i, edges.size)]
+      val ith = edges[i]
       return prev.vertex_y > ith.vertex_y
     }
   }
@@ -2236,7 +2154,10 @@ internal object FastRClip {
   /**
    * Scanbeam tree
    */
-  private class ScanBeamTree(  /* Scanbeam node y value             */var y: Float) {
+  private class ScanBeamTree(
+    /* Scanbeam node y value             */
+    var y: Float,
+  ) {
     var less /* Pointer to nodes with lower y     */: ScanBeamTree? = null
     var more /* Pointer to nodes with higher y    */: ScanBeamTree? = null
   }
@@ -2250,11 +2171,7 @@ internal object FastRClip {
     fun build_sbt(): FloatArray {
       val sbt = FloatArray(sbt_entries)
       var entries = 0
-      entries = inner_build_sbt(
-        entries,
-        sbt,
-        sb_tree
-      )
+      entries = inner_build_sbt(entries, sbt, sb_tree)
       check(entries == sbt_entries) { "Something went wrong buildign sbt from tree." }
       return sbt
     }
@@ -2262,20 +2179,12 @@ internal object FastRClip {
     private fun inner_build_sbt(entries: Int, sbt: FloatArray, sbt_node: ScanBeamTree?): Int {
       var entries = entries
       if (sbt_node!!.less != null) {
-        entries = inner_build_sbt(
-          entries,
-          sbt,
-          sbt_node.less
-        )
+        entries = inner_build_sbt(entries, sbt, sbt_node.less)
       }
       sbt[entries] = sbt_node.y
       entries++
       if (sbt_node.more != null) {
-        entries = inner_build_sbt(
-          entries,
-          sbt,
-          sbt_node.more
-        )
+        entries = inner_build_sbt(entries, sbt, sbt_node.more)
       }
       return entries
     }
@@ -2299,16 +2208,8 @@ internal object FastRClip {
       /* Process each AET edge */
       var edge = aet.top_node
       while (edge != null) {
-        if (edge.bstate_above === BundleState.BUNDLE_HEAD ||
-          edge.bundle_above[CLIP] != 0 ||
-          edge.bundle_above[SUBJ] != 0
-        ) {
-          st = add_st_edge(
-            st,
-            this,
-            edge,
-            dy
-          )
+        if (edge.bstate_above === BundleState.BUNDLE_HEAD || edge.bundle_above[CLIP] != 0 || edge.bundle_above[SUBJ] != 0) {
+          st = add_st_edge(st, this, edge, dy)
         }
         edge = edge.next
       }
@@ -2318,7 +2219,10 @@ internal object FastRClip {
   /**
    * Sorted edge table
    */
-  private class StNode(  /* Pointer to AET edge               */var edge: EdgeNode, prev: StNode?) {
+  private class StNode(
+    /* Pointer to AET edge               */
+    var edge: EdgeNode, prev: StNode?,
+  ) {
     var xb /* Scanbeam bottom x coordinate      */: Float
     var xt /* Scanbeam top x coordinate         */: Float
     var dx /* Change in x for a unit y increase */: Float

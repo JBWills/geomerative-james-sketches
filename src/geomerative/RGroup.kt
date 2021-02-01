@@ -205,7 +205,7 @@ class RGroup : RGeomElem {
     val result = RGroup()
     for (i in 0 until elements.size) {
       val element = elements[i]
-      if (element!!.type == GROUP) {
+      if (element.type == GROUP) {
         val newElement: RGeomElem = (element as RGroup?)!!.toPolygonGroup()
         result.addElement(newElement)
       } else {
@@ -228,7 +228,7 @@ class RGroup : RGeomElem {
     val result = RGroup()
     for (i in 0 until elements.size) {
       val element = elements[i]
-      if (element!!.type == GROUP) {
+      if (element.type == GROUP) {
         val newElement: RGeomElem = (element as RGroup?)!!.toShapeGroup()
         result.addElement(newElement)
       } else {
@@ -267,7 +267,7 @@ class RGroup : RGeomElem {
     val result = RPolygon()
     for (i in 0 until elements.size) {
       val currentPolygon = elements[i].toPolygon()
-      for (j in 0 until currentPolygon!!.contours.size) {
+      for (j in 0 until currentPolygon.contours.size) {
         result.addContour(currentPolygon.contours[j])
       }
     }
@@ -385,7 +385,8 @@ class RGroup : RGeomElem {
     var accumulatedAdvancement = lengthsCurves[indOfElement] / lengthCurve
     var prevAccumulatedAdvancement = 0f
 
-    /* Find in what command the advancement point is  */while (t > accumulatedAdvancement) {
+    /* Find in what command the advancement point is  */
+    while (t > accumulatedAdvancement) {
       indOfElement++
       prevAccumulatedAdvancement = accumulatedAdvancement
       accumulatedAdvancement += lengthsCurves[indOfElement] / lengthCurve
@@ -422,12 +423,9 @@ class RGroup : RGeomElem {
     // Add the elements before the cut point
     for (i in 0 until indOfElement) {
       when (elements[i].type) {
-        MESH -> result[0].addElement(RMesh(
-          (elements[i] as RMesh?)!!))
-        GROUP -> result[0]
-          .addElement(RGroup(elements[i] as RGroup))
-        POLYGON -> result[0]
-          .addElement(RPolygon(elements[i] as RPolygon))
+        MESH -> result[0].addElement(RMesh((elements[i] as RMesh?)!!))
+        GROUP -> result[0].addElement(RGroup(elements[i] as RGroup))
+        POLYGON -> result[0].addElement(RPolygon(elements[i] as RPolygon))
         SHAPE -> result[0].addElement(RShape((elements[i] as RShape)))
       }
     }
@@ -450,12 +448,9 @@ class RGroup : RGeomElem {
     // Add the elements after the cut point    
     for (i in indOfElement + 1 until elements.size) {
       when (elements[i].type) {
-        MESH -> result[1].addElement(RMesh(
-          (elements[i] as RMesh?)!!))
-        GROUP -> result[1]
-          .addElement(RGroup(elements[i] as RGroup))
-        POLYGON -> result[1]
-          .addElement(RPolygon(elements[i] as RPolygon))
+        MESH -> result[1].addElement(RMesh((elements[i] as RMesh?)!!))
+        GROUP -> result[1].addElement(RGroup(elements[i] as RGroup))
+        POLYGON -> result[1].addElement(RPolygon(elements[i] as RPolygon))
         SHAPE -> result[1].addElement(RShape(elements[i] as RShape))
       }
     }
@@ -524,10 +519,8 @@ class RGroup : RGeomElem {
   @Throws(RuntimeException::class)
   fun adapt(
     grp: RGroup,
-    wght: Float =
-      RG.adaptorScale,
-    lngthOffset: Float =
-      RG.adaptorLengthOffset,
+    wght: Float = RG.adaptorScale,
+    lngthOffset: Float = RG.adaptorLengthOffset,
   ) {
     val c = bounds
     val xmin = c.minX
@@ -539,7 +532,7 @@ class RGroup : RGeomElem {
         var i = 0
         while (i < numElements) {
           val elem = elements[i]
-          val ps = elem!!.handles
+          val ps = elem.handles
           if (ps != null) {
             var k = 0
             while (k < ps.size) {
@@ -549,10 +542,8 @@ class RGroup : RGeomElem {
               val amp = ymax - py
               val tg = grp.getTangent(t)
               val p = grp.getPoint(t)
-              val angle = Math.atan2(
-                tg!!.y.toDouble(),
-                tg.x
-                  .toDouble()).toFloat() - Math.PI.toFloat() / 2f
+              val angle =
+                Math.atan2(tg!!.y.toDouble(), tg.x.toDouble()).toFloat() - Math.PI.toFloat() / 2f
               ps[k].x = p!!.x + wght * amp * Math.cos(angle.toDouble()).toFloat()
               ps[k].y = p.y + wght * amp * Math.sin(angle.toDouble()).toFloat()
               k++
@@ -565,25 +556,19 @@ class RGroup : RGeomElem {
         var i = 0
         while (i < numElements) {
           val elem = elements[i]
-          val elemc = elem!!.bounds
+          val elemc = elem.bounds
           val px = (elemc.bottomRight.x + elemc.topLeft.x) / 2f
           val py = (elemc.bottomRight.y - elemc.topLeft.y) / 2f
           val t = ((px - xmin) / (xmax - xmin) + lngthOffset) % 1f
           val tg = grp.getTangent(t)
           val p = grp.getPoint(t)
-          val angle = Math.atan2(
-            tg!!.y.toDouble(),
-            tg.x
-              .toDouble()).toFloat()
-          val pletter = RPoint(px,
-            py)
+          val angle = Math.atan2(tg!!.y.toDouble(), tg.x.toDouble()).toFloat()
+          val pletter = RPoint(px, py)
           p!!.sub(pletter)
           val mtx = RMatrix()
           mtx.translate(p)
-          mtx.rotate(angle,
-            pletter)
-          mtx.scale(wght,
-            pletter)
+          mtx.rotate(angle, pletter)
+          mtx.scale(wght, pletter)
           elem.transform(mtx)
           i++
         }
@@ -592,25 +577,19 @@ class RGroup : RGeomElem {
         var i = 0
         while (i < numElements) {
           val elem = elements[i]
-          val elemc = elem!!.bounds
+          val elemc = elem.bounds
           val px = (elemc.bottomRight.x + elemc.topLeft.x) / 2f
           val py = (elemc.bottomRight.y - elemc.topLeft.y) / 2f
           val t = (i.toFloat() / numElements.toFloat() + lngthOffset) % 1f
           val tg = grp.getTangent(t)
           val p = grp.getPoint(t)
-          val angle = Math.atan2(
-            tg!!.y.toDouble(),
-            tg.x
-              .toDouble()).toFloat()
-          val pletter = RPoint(px,
-            py)
+          val angle = Math.atan2(tg!!.y.toDouble(), tg.x.toDouble()).toFloat()
+          val pletter = RPoint(px, py)
           p!!.sub(pletter)
           val mtx = RMatrix()
           mtx.translate(p)
-          mtx.rotate(angle,
-            pletter)
-          mtx.scale(wght,
-            pletter)
+          mtx.rotate(angle, pletter)
+          mtx.scale(wght, pletter)
           elem.transform(mtx)
           i++
         }
@@ -629,11 +608,7 @@ class RGroup : RGeomElem {
   fun adapt(shp: RShape, wght: Float, lngthOffset: Float) {
     val grp = RGroup()
     grp.addElement(shp)
-    adapt(
-      grp,
-      wght,
-      lngthOffset
-    )
+    adapt(grp, wght, lngthOffset)
   }
 
   fun polygonize() {

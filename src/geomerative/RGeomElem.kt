@@ -94,10 +94,7 @@ abstract class RGeomElem {
     val tr = shp.topRight
     val bl = shp.bottomRight
     val br = shp.bottomLeft
-    return (this.contains(tl)
-      && this.contains(tr)
-      && this.contains(bl)
-      && this.contains(br))
+    return (this.contains(tl) && this.contains(tr) && this.contains(bl) && this.contains(br))
   }
 
   /**
@@ -159,10 +156,7 @@ abstract class RGeomElem {
     val tr = shp.topRight
     val bl = shp.bottomRight
     val br = shp.bottomLeft
-    return (this.contains(tl)
-      || this.contains(tr)
-      || this.contains(bl)
-      || this.contains(br))
+    return (this.contains(tl) || this.contains(tr) || this.contains(bl) || this.contains(br))
   }
 
   /**
@@ -387,37 +381,19 @@ abstract class RGeomElem {
     val orig = bounds
     val origW = orig.maxX - orig.minX
     val origH = orig.maxY - orig.minY
-    mtx.translate(
-      -orig.minX,
-      -orig.minY
-    )
+    mtx.translate(-orig.minX, -orig.minY)
     if (keepAspectRatio) {
-      mtx.scale(min(
-        w / origW,
-        h / origH
-      ))
+      mtx.scale(min(w / origW, h / origH))
     } else {
-      mtx.scale(
-        w / origW,
-        h / origH
-      )
+      mtx.scale(w / origW, h / origH)
     }
-    mtx.translate(
-      x,
-      y
-    )
+    mtx.translate(x, y)
     this.transform(mtx)
     return
   }
 
   fun transform(x: Float, y: Float, w: Float, h: Float) {
-    this.transform(
-      x,
-      y,
-      w,
-      h,
-      true
-    )
+    this.transform(x, y, w, h, true)
     return
   }
 
@@ -433,10 +409,10 @@ abstract class RGeomElem {
       val initialMinPoint = RPoint(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
       val initialMaxPoint = RPoint(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY)
 
-      val (minPoint, maxPoint) =
-        handles.reduceTo(initialMinPoint to initialMaxPoint) { (minP, maxP), p ->
-          minXY(minP, p) to maxXY(maxP, p)
-        }
+      val (minPoint, maxPoint) = handles.reduceTo(
+        initialMinPoint to initialMaxPoint) { (minP, maxP), p ->
+        minXY(minP, p) to maxXY(maxP, p)
+      }
 
       return RRectangle(minPoint, maxPoint)
     }
@@ -465,10 +441,7 @@ abstract class RGeomElem {
   val topLeft: RPoint
     get() {
       val orig = bounds
-      return RPoint(
-        orig.minX,
-        orig.minY
-      )
+      return RPoint(orig.minX, orig.minY)
     }
 
   /**
@@ -485,10 +458,7 @@ abstract class RGeomElem {
   val topRight: RPoint
     get() {
       val orig = bounds
-      return RPoint(
-        orig.maxX,
-        orig.minY
-      )
+      return RPoint(orig.maxX, orig.minY)
     }
 
   /**
@@ -505,10 +475,7 @@ abstract class RGeomElem {
   val bottomLeft: RPoint
     get() {
       val orig = bounds
-      return RPoint(
-        orig.minX,
-        orig.maxY
-      )
+      return RPoint(orig.minX, orig.maxY)
     }
 
   /**
@@ -525,10 +492,7 @@ abstract class RGeomElem {
   val bottomRight: RPoint
     get() {
       val orig = bounds
-      return RPoint(
-        orig.maxX,
-        orig.maxY
-      )
+      return RPoint(orig.maxX, orig.maxY)
     }
 
   /**
@@ -624,10 +588,7 @@ abstract class RGeomElem {
   val center: RPoint
     get() {
       val c = bounds
-      return RPoint(
-        (c.maxX + c.minX) / 2,
-        (c.maxY + c.minY) / 2
-      )
+      return RPoint((c.maxX + c.minX) / 2, (c.maxY + c.minY) / 2)
     }
 
   /**
@@ -650,10 +611,7 @@ abstract class RGeomElem {
         yAcc += (ps[i].y + ps[i + 1].y) * (ps[i].x * ps[i + 1].y - ps[i + 1].x * ps[i].y)
       }
       areaAcc /= 2.0f
-      return RPoint(
-        xAcc / (6.0f * areaAcc),
-        yAcc / (6.0f * areaAcc)
-      )
+      return RPoint(xAcc / (6.0f * areaAcc), yAcc / (6.0f * areaAcc))
     }
 
   /**
@@ -686,78 +644,18 @@ abstract class RGeomElem {
    */
   fun isIn(g: PGraphics): Boolean {
     val c = bounds
-    val x0 = g.screenX(
-      c.topLeft.x,
-      c.topLeft.y
-    )
-    val y0 = g.screenY(
-      c.topLeft.x,
-      c.topLeft.y
-    )
-    val x1 = g.screenX(
-      c.bottomRight.x,
-      c.topLeft.y
-    )
-    val y1 = g.screenY(
-      c.bottomRight.x,
-      c.topLeft.y
-    )
-    val x2 = g.screenX(
-      c.bottomRight.x,
-      c.bottomRight.y
-    )
-    val y2 = g.screenY(
-      c.bottomRight.x,
-      c.bottomRight.y
-    )
-    val x3 = g.screenX(
-      c.topLeft.x,
-      c.bottomRight.y
-    )
-    val y3 = g.screenY(
-      c.topLeft.x,
-      c.bottomRight.y
-    )
-    val xmax = max(
-      max(
-        x0,
-        x1
-      ),
-      max(
-        x2,
-        x3
-      )
-    )
-    val ymax = max(
-      max(
-        y0,
-        y1
-      ),
-      max(
-        y2,
-        y3
-      )
-    )
-    val xmin = min(
-      min(
-        x0,
-        x1
-      ),
-      min(
-        x2,
-        x3
-      )
-    )
-    val ymin = min(
-      min(
-        y0,
-        y1
-      ),
-      min(
-        y2,
-        y3
-      )
-    )
+    val x0 = g.screenX(c.topLeft.x, c.topLeft.y)
+    val y0 = g.screenY(c.topLeft.x, c.topLeft.y)
+    val x1 = g.screenX(c.bottomRight.x, c.topLeft.y)
+    val y1 = g.screenY(c.bottomRight.x, c.topLeft.y)
+    val x2 = g.screenX(c.bottomRight.x, c.bottomRight.y)
+    val y2 = g.screenY(c.bottomRight.x, c.bottomRight.y)
+    val x3 = g.screenX(c.topLeft.x, c.bottomRight.y)
+    val y3 = g.screenY(c.topLeft.x, c.bottomRight.y)
+    val xmax = max(max(x0, x1), max(x2, x3))
+    val ymax = max(max(y0, y1), max(y2, y3))
+    val xmin = min(min(x0, x1), min(x2, x3))
+    val ymin = min(min(y0, y1), min(y2, y3))
     return !((xmax < 0 || xmin > g.width) && (ymax < 0 || ymin > g.height))
   }
 
@@ -799,35 +697,26 @@ abstract class RGeomElem {
   ): RMatrix {
     val mrgn = margin * 2
     val c = bounds
-    val scl = min(
-      (g.width - mrgn) / abs(c.minX - c.maxX),
-      (g.height - mrgn) / abs(c.minY - c.maxY)
-    )
+    val scl = min((g.width - mrgn) / abs(c.minX - c.maxX), (g.height - mrgn) / abs(c.minY - c.maxY))
     val trns = center
     val transf = RMatrix()
     if (sclDamping != 0f) {
       transf.scale(1 + (scl - 1) * sclDamping)
     }
     if (trnsDamping != 0f) {
-      transf.translate(
-        -trns.x * trnsDamping,
-        -trns.y * trnsDamping
-      )
+      transf.translate(-trns.x * trnsDamping, -trns.y * trnsDamping)
     }
     return transf
   }
 
   @Throws(RuntimeException::class)
   fun getCenteringTransf(g: PGraphics): RMatrix {
-    return getCenteringTransf(
-      g, 0f, 1f, 1f)
+    return getCenteringTransf(g, 0f, 1f, 1f)
   }
 
   @Throws(RuntimeException::class)
   fun getCenteringTransf(g: PGraphics, margin: Float): RMatrix {
-    return getCenteringTransf(
-      g,
-      margin, 1f, 1f)
+    return getCenteringTransf(g, margin, 1f, 1f)
   }
 
   fun centerIn(g: PGraphics) {
@@ -835,19 +724,12 @@ abstract class RGeomElem {
   }
 
   fun centerIn(g: PGraphics, margin: Float) {
-    transform(getCenteringTransf(
-      g,
-      margin, 1f, 1f))
+    transform(getCenteringTransf(g, margin, 1f, 1f))
   }
 
   @Throws(RuntimeException::class)
   fun centerIn(g: PGraphics, margin: Float, sclDamping: Float, trnsDamping: Float) {
-    transform(getCenteringTransf(
-      g,
-      margin,
-      sclDamping,
-      trnsDamping
-    ))
+    transform(getCenteringTransf(g, margin, sclDamping, trnsDamping))
   }
 
   /**
@@ -863,10 +745,7 @@ abstract class RGeomElem {
    */
   fun translate(tx: Float, ty: Float) {
     val transf = RMatrix()
-    transf.translate(
-      tx,
-      ty
-    )
+    transf.translate(tx, ty)
     transform(transf)
   }
 
@@ -900,11 +779,7 @@ abstract class RGeomElem {
    */
   fun rotate(angle: Float, vx: Float, vy: Float) {
     val transf = RMatrix()
-    transf.rotate(
-      angle,
-      vx,
-      vy
-    )
+    transf.rotate(angle, vx, vy)
     transform(transf)
   }
 
@@ -927,10 +802,7 @@ abstract class RGeomElem {
    */
   fun rotate(angle: Float, v: RPoint) {
     val transf = RMatrix()
-    transf.rotate(
-      angle,
-      v
-    )
+    transf.rotate(angle, v)
     transform(transf)
   }
 
@@ -948,20 +820,13 @@ abstract class RGeomElem {
    */
   fun scale(sx: Float, sy: Float, p: RPoint) {
     val transf = RMatrix()
-    transf.scale(
-      sx,
-      sy,
-      p
-    )
+    transf.scale(sx, sy, p)
     transform(transf)
   }
 
   fun scale(sx: Float, sy: Float) {
     val transf = RMatrix()
-    transf.scale(
-      sx,
-      sy
-    )
+    transf.scale(sx, sy)
     transform(transf)
   }
 
@@ -980,12 +845,7 @@ abstract class RGeomElem {
    */
   fun scale(sx: Float, sy: Float, x: Float, y: Float) {
     val transf = RMatrix()
-    transf.scale(
-      sx,
-      sy,
-      x,
-      y
-    )
+    transf.scale(sx, sy, x, y)
     transform(transf)
   }
 
@@ -1026,11 +886,7 @@ abstract class RGeomElem {
    */
   fun scale(s: Float, x: Float, y: Float) {
     val transf = RMatrix()
-    transf.scale(
-      s,
-      x,
-      y
-    )
+    transf.scale(s, x, y)
     transform(transf)
   }
 
@@ -1079,10 +935,7 @@ abstract class RGeomElem {
    */
   fun shear(shx: Float, shy: Float) {
     val transf = RMatrix()
-    transf.shear(
-      shx,
-      shy
-    )
+    transf.shear(shx, shy)
     transform(transf)
   }
 

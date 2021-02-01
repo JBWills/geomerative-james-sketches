@@ -521,6 +521,7 @@ public class RG implements PConstants {
   // Transformation methods
   public static RShape centerIn(RShape grp, PGraphics g, float margin) {
     RShape ret = new RShape(grp);
+
     ret.centerIn(
       g,
       margin

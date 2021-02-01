@@ -105,22 +105,13 @@ class RMatrix {
   }
 
   constructor(transformationString: String?) {
-    val transfTokens = PApplet.splitTokens(
-      transformationString,
-      ")"
-    )
+    val transfTokens = PApplet.splitTokens(transformationString, ")")
 
     // Loop through all transformations
     for (i in transfTokens.indices) {
       // Check the transformation and the parameters
-      val transf = PApplet.splitTokens(
-        transfTokens[i],
-        "("
-      )
-      val params = PApplet.splitTokens(
-        transf[1],
-        ", "
-      )
+      val transf = PApplet.splitTokens(transfTokens[i], "(")
+      val params = PApplet.splitTokens(transf[1], ", ")
       val fparams = FloatArray(params.size)
       for (j in params.indices) {
         fparams[j] = PApplet.parseFloat(params[j])
@@ -130,43 +121,26 @@ class RMatrix {
         if (params.size == 1) {
           this.translate(fparams[0])
         } else if (params.size == 2) {
-          this.translate(
-            fparams[0],
-            fparams[1]
-          )
+          this.translate(fparams[0], fparams[1])
         }
       } else if (transf[0] == "rotate") {
         if (params.size == 1) {
           this.rotate(PApplet.radians(fparams[0]))
         } else if (params.size == 3) {
-          this.rotate(
-            PApplet.radians(fparams[0]),
-            fparams[1],
-            fparams[2]
-          )
+          this.rotate(PApplet.radians(fparams[0]), fparams[1], fparams[2])
         }
       } else if (transf[0] == "scale") {
         if (params.size == 1) {
           this.scale(fparams[0])
         } else if (params.size == 2) {
-          this.scale(
-            fparams[0],
-            fparams[1]
-          )
+          this.scale(fparams[0], fparams[1])
         }
       } else if (transf[0] == "skewX") {
         skewX(PApplet.radians(fparams[0]))
       } else if (transf[0] == "skewY") {
         skewY(PApplet.radians(fparams[0]))
       } else if (transf[0] == "matrix") {
-        this.apply(
-          fparams[0],
-          fparams[2],
-          fparams[4],
-          fparams[1],
-          fparams[3],
-          fparams[5]
-        )
+        this.apply(fparams[0], fparams[2], fparams[4], fparams[1], fparams[3], fparams[5])
       } else {
         throw RuntimeException("Transformation unknown. '" + transf[0] + "'")
       }
@@ -229,13 +203,7 @@ class RMatrix {
    * @related shear ( )
    */
   fun apply(rhs: RMatrix) {
-    apply(rhs.m00,
-      rhs.m01,
-      rhs.m02,
-      rhs.m10,
-      rhs.m11,
-      rhs.m12
-    )
+    apply(rhs.m00, rhs.m01, rhs.m02, rhs.m10, rhs.m11, rhs.m12)
   }
 
   /**
@@ -250,10 +218,7 @@ class RMatrix {
    */
   @JvmOverloads
   fun translate(tx: Float, ty: Float = 0f) {
-    apply(1f, 0f,
-      tx, 0f, 1f,
-      ty
-    )
+    apply(1f, 0f, tx, 0f, 1f, ty)
   }
 
   /**
@@ -266,10 +231,7 @@ class RMatrix {
    * @related shear ( )
    */
   fun translate(t: RPoint) {
-    translate(
-      t.x,
-      t.y
-    )
+    translate(t.x, t.y)
   }
 
   /**
@@ -284,21 +246,15 @@ class RMatrix {
    * @related scale ( )
    */
   fun rotate(angle: Float, vx: Float, vy: Float) {
-    translate(vx,
-      vy)
+    translate(vx, vy)
     rotate(angle)
-    translate(-vx,
-      -vy)
+    translate(-vx, -vy)
   }
 
   fun rotate(angle: Float) {
     val c = Math.cos(angle.toDouble()).toFloat()
     val s = Math.sin(angle.toDouble()).toFloat()
-    apply(
-      c,
-      -s, 0f,
-      s,
-      c, 0f)
+    apply(c, -s, 0f, s, c, 0f)
   }
 
   /**
@@ -312,11 +268,7 @@ class RMatrix {
    * @related scale ( )
    */
   fun rotate(angle: Float, v: RPoint) {
-    rotate(
-      angle,
-      v.x,
-      v.y
-    )
+    rotate(angle, v.x, v.y)
   }
 
   /**
@@ -332,18 +284,13 @@ class RMatrix {
    * @related rotate ( )
    */
   fun scale(sx: Float, sy: Float, x: Float, y: Float) {
-    translate(x,
-      y)
-    scale(sx,
-      sy)
-    translate(-x,
-      -y)
+    translate(x, y)
+    scale(sx, sy)
+    translate(-x, -y)
   }
 
   fun scale(sx: Float, sy: Float) {
-    apply(
-      sx, 0f, 0f, 0f,
-      sy, 0f)
+    apply(sx, 0f, 0f, 0f, sy, 0f)
   }
 
   /**
@@ -358,12 +305,7 @@ class RMatrix {
    * @related rotate ( )
    */
   fun scale(s: Float, x: Float, y: Float) {
-    scale(
-      s,
-      s,
-      x,
-      y
-    )
+    scale(s, s, x, y)
   }
 
   /**
@@ -378,12 +320,7 @@ class RMatrix {
    * @related rotate ( )
    */
   fun scale(sx: Float, sy: Float, p: RPoint) {
-    scale(
-      sx,
-      sy,
-      p.x,
-      p.y
-    )
+    scale(sx, sy, p.x, p.y)
   }
 
   /**
@@ -397,19 +334,11 @@ class RMatrix {
    * @related rotate ( )
    */
   fun scale(s: Float, p: RPoint) {
-    scale(
-      s,
-      s,
-      p.x,
-      p.y
-    )
+    scale(s, s, p.x, p.y)
   }
 
   fun scale(s: Float) {
-    scale(
-      s,
-      s
-    )
+    scale(s, s)
   }
 
   /**
@@ -422,13 +351,11 @@ class RMatrix {
    * @related translate ( )
    */
   fun skewX(angle: Float) {
-    apply(1f,
-      Math.tan(angle.toDouble()).toFloat(), 0f, 0f, 1f, 0f)
+    apply(1f, Math.tan(angle.toDouble()).toFloat(), 0f, 0f, 1f, 0f)
   }
 
   fun skewY(angle: Float) {
-    apply(1f, 0f, 0f,
-      Math.tan(angle.toDouble()).toFloat(), 1f, 0f)
+    apply(1f, 0f, 0f, Math.tan(angle.toDouble()).toFloat(), 1f, 0f)
   }
 
   /**
@@ -442,8 +369,6 @@ class RMatrix {
    * @related translate ( )
    */
   fun shear(shx: Float, shy: Float) {
-    apply(1f,
-      -shx, 0f,
-      shy, 1f, 0f)
+    apply(1f, -shx, 0f, shy, 1f, 0f)
   }
 }

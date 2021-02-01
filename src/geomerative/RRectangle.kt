@@ -70,10 +70,9 @@ class RRectangle(var topLeft: RPoint, var bottomRight: RPoint) {
       return topLeft.y
     }
 
-  constructor(x: Float, y: Float, w: Float, h: Float) : this(
-    topLeft = RPoint(x, y),
-    bottomRight = RPoint(x + w, y + h)
-  )
+  constructor(
+    x: Float, y: Float, w: Float, h: Float,
+  ) : this(topLeft = RPoint(x, y), bottomRight = RPoint(x + w, y + h))
 
   val points: Array<RPoint>
     get() = arrayOf(

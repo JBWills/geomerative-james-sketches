@@ -299,10 +299,7 @@ data class RPoint(var x: Float, var y: Float) {
    * @related mult ( )
    */
   fun cross(p: RPoint): RPoint {
-    return RPoint(
-      x * p.y - p.x * y,
-      y * p.x - p.y * x
-    )
+    return RPoint(x * p.y - p.x * y, y * p.x - p.y * x)
   }
 
   /**
