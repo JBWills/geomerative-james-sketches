@@ -1,30 +1,33 @@
 /**
-    Copyright 2004-2008 Ricard Marxer  <email@ricardmarxer.com>
+ * Copyright 2004-2008 Ricard Marxer  <email@ricardmarxer.com>
+ * <p>
+ * This file is part of Geomerative.
+ * <p>
+ * Geomerative is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * Geomerative is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with Geomerative.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-    This file is part of Geomerative.
+package geomerativefork.src;
 
-    Geomerative is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Geomerative is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with Geomerative.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-package geomerative;
-import processing.core.*;
+import processing.core.PApplet;
+import processing.core.PConstants;
+import processing.core.PGraphics;
 
 /**
  * RG is a static class containing all the states, modes, etc..
  * Geomerative is mostly used by calling RG methods. e.g.  RShape s = RG.getEllipse(30, 40, 80, 80)
  */
-public class RG implements PConstants{
+public class RG implements PConstants {
   /**
    * @invisible
    */
@@ -89,16 +92,16 @@ public class RG implements PConstants{
    * UNIFORMSTEP segmentator is the fastest segmentator and it segments the curve based on a constant value of the step of the curve parameter, or on the number of segments wanted.  This can be useful when segmpointsentating very often a Shape or when we know the amount of segments necessary for our specific application.
    */
   public static int UNIFORMSTEP = RCommand.UNIFORMSTEP;
-  
+
   static int dpi = 72;
 
   /**
    * @invisible
    */
-  public static class LibraryNotInitializedException extends NullPointerException{
+  public static class LibraryNotInitializedException extends NullPointerException {
     private static final long serialVersionUID = -3710605630786298671L;
 
-    LibraryNotInitializedException(){
+    LibraryNotInitializedException() {
       super("Must call RG.init(this); before using this library.");
     }
   }
@@ -106,10 +109,10 @@ public class RG implements PConstants{
   /**
    * @invisible
    */
-  public static class FontNotLoadedException extends NullPointerException{
+  public static class FontNotLoadedException extends NullPointerException {
     private static final long serialVersionUID = -3710605630786298672L;
 
-    FontNotLoadedException(){
+    FontNotLoadedException() {
       super("Use RG.loadFont(filename) and RG.textFont(font, size) to load and set fonts first.");
     }
   }
@@ -117,10 +120,10 @@ public class RG implements PConstants{
   /**
    * @invisible
    */
-  public static class NoPathInitializedException extends NullPointerException{
+  public static class NoPathInitializedException extends NullPointerException {
     private static final long serialVersionUID = -3710605630786298673L;
 
-    NoPathInitializedException(){
+    NoPathInitializedException() {
       super("Must initialize a path by calling RG.beginShape() first.");
     }
   }
@@ -132,13 +135,14 @@ public class RG implements PConstants{
 
 
   // Font methods
+
   /**
    * Load and get the font object that can be used in the textFont method.
    * @eexample loadFont
    * @param fontFile  the filename of the font to be loaded
    * @return RFont, the font object
    */
-  public static RFont loadFont(String fontFile){
+  public static RFont loadFont(String fontFile) {
     RFont newFntLoader = new RFont(fontFile);
     if (fntLoader == null) fntLoader = newFntLoader;
     return newFntLoader;
@@ -150,7 +154,7 @@ public class RG implements PConstants{
    * @eexample text
    * @param text  the string to be drawn on the screen
    */
-  public static void text(String text){
+  public static void text(String text) {
     RShape grp = getText(text);
     grp.draw();
   }
@@ -161,7 +165,7 @@ public class RG implements PConstants{
    * @param font  the font object to be set
    * @param size  the size of the font
    */
-  public static void textFont(RFont font, int size){
+  public static void textFont(RFont font, int size) {
     font.setSize(size);
     fntLoader = font;
   }
@@ -175,13 +179,17 @@ public class RG implements PConstants{
    * @param align  the alignment. Use RG.CENTER, RG.LEFT or RG.RIGHT
    * @return RShape, the shape created
    */
-  public static RShape getText(String text, String font, int size, int align){
-    RFont tempFntLoader = new RFont(font, size, align);
+  public static RShape getText(String text, String font, int size, int align) {
+    RFont tempFntLoader = new RFont(
+      font,
+      size,
+      align
+    );
     return tempFntLoader.toShape(text);
   }
 
-  public static RShape getText(String text){
-    if(fntLoader == null){
+  public static RShape getText(String text) {
+    if (fntLoader == null) {
       throw new FontNotLoadedException();
     }
 
@@ -190,6 +198,7 @@ public class RG implements PConstants{
 
 
   // Shape methods
+
   /**
    * Draw a shape to a given position on the screen.
    * @eexample shape
@@ -199,29 +208,38 @@ public class RG implements PConstants{
    * @param w  the width with which we draw the shape
    * @param h  the height with which we draw the shape
    */
-  public static void shape(RShape shp, float x, float y, float w, float h){
+  public static void shape(RShape shp, float x, float y, float w, float h) {
     RShape tshp = new RShape(shp);
 
     RMatrix transf = new RMatrix();
-    transf.translate(x, y);
-    transf.scale(w / tshp.getOrigWidth(), h/ tshp.getOrigHeight());
+    transf.translate(
+      x,
+      y
+    );
+    transf.scale(
+      w / tshp.getOrigWidth(),
+      h / tshp.getOrigHeight()
+    );
     tshp.transform(transf);
 
     tshp.draw();
   }
 
-  public static void shape(RShape shp, float x, float y){
+  public static void shape(RShape shp, float x, float y) {
     RShape tshp = new RShape(shp);
 
     RMatrix transf = new RMatrix();
-    transf.translate(x, y);
+    transf.translate(
+      x,
+      y
+    );
     tshp.transform(transf);
 
     tshp.draw();
   }
 
 
-  public static void shape(RShape shp){
+  public static void shape(RShape shp) {
     shp.draw();
   }
 
@@ -229,7 +247,7 @@ public class RG implements PConstants{
    * Create a shape from an array of point arrays.
    * @eexample createShape
    */
-  public static RShape createShape(RPoint[][] points){
+  public static RShape createShape(RPoint[][] points) {
     return new RShape(points);
   }
 
@@ -239,7 +257,7 @@ public class RG implements PConstants{
    * @eexample loadShape
    * @param filename  the SVG file to be loaded.  Must be in the data directory
    */
-  public static RShape loadShape(String filename){
+  public static RShape loadShape(String filename) {
     RSVG svgLoader = new RSVG();
     return svgLoader.toShape(filename);
   }
@@ -250,20 +268,27 @@ public class RG implements PConstants{
    * @param filename  the SVG file to be saved.
    * @param shape  the shape to be saved.
    */
-  public static void saveShape(String filename, RShape shape){
+  public static void saveShape(String filename, RShape shape) {
     RSVG svgSaver = new RSVG();
     String str = svgSaver.fromShape(shape);
-    String[] strs = PApplet.split(str, "\n");
-    RG.parent().saveStrings(filename, strs);
+    String[] strs = PApplet.split(
+      str,
+      "\n"
+    );
+    RG.parent().saveStrings(
+      filename,
+      strs
+    );
   }
 
 
   // Methods to create shapes
+
   /**
    * Begin to create a shape.
    * @eexample createShape
    */
-  public static void beginShape(){
+  public static void beginShape() {
     shape = new RShape();
   }
 
@@ -272,7 +297,7 @@ public class RG implements PConstants{
    * @param endMode  if called with RG.CLOSE it closes the current path before starting the new one.
    * @eexample createShape
    */
-  public static void breakShape(int endMode){
+  public static void breakShape(int endMode) {
     if (endMode == CLOSE) {
       shape.addClose();
     }
@@ -282,7 +307,7 @@ public class RG implements PConstants{
     breakShape();
   }
 
-  public static void breakShape(){
+  public static void breakShape() {
     shape.addPath();
   }
 
@@ -292,11 +317,17 @@ public class RG implements PConstants{
    * @param x  the x coordinate of the vertex
    * @param y  the y coordinate of the vertex
    */
-  public static void vertex(float x, float y){
-    if (shape.countPaths() == 0){
-      shape.addMoveTo(x, y);
-    }else{
-      shape.addLineTo(x, y);
+  public static void vertex(float x, float y) {
+    if (shape.countPaths() == 0) {
+      shape.addMoveTo(
+        x,
+        y
+      );
+    } else {
+      shape.addLineTo(
+        x,
+        y
+      );
     }
   }
 
@@ -310,11 +341,18 @@ public class RG implements PConstants{
    * @param x  the x coordinate of the end point
    * @param y  the y coordinate of the end point
    */
-  public static void bezierVertex(float cx1, float cy1, float cx2, float cy2, float x, float y){
-    if (shape.countPaths() == 0){
+  public static void bezierVertex(float cx1, float cy1, float cx2, float cy2, float x, float y) {
+    if (shape.countPaths() == 0) {
       throw new NoPathInitializedException();
-    }else{
-      shape.addBezierTo(cx1, cy1, cx2, cy2, x, y);
+    } else {
+      shape.addBezierTo(
+        cx1,
+        cy1,
+        cx2,
+        cy2,
+        x,
+        y
+      );
     }
   }
 
@@ -323,12 +361,12 @@ public class RG implements PConstants{
    * @eexample createShape
    * @param g  the canvas on which to draw.  By default it draws on the screen
    */
-  public static void endShape(PGraphics g){
+  public static void endShape(PGraphics g) {
     shape.draw(g);
     shape = null;
   }
 
-  public static void endShape(){
+  public static void endShape() {
     shape.draw();
     shape = null;
   }
@@ -338,7 +376,7 @@ public class RG implements PConstants{
    * End the shape being created and get it as an object.
    * @eexample getShape
    */
-  public static RShape getShape(){
+  public static RShape getShape() {
     RShape returningGroup = new RShape();
     returningGroup.addChild(shape);
 
@@ -358,12 +396,22 @@ public class RG implements PConstants{
    * @param h  height of the ellipse
    * @return RShape, the shape created
    */
-  public static RShape getEllipse(float x, float y, float w, float h){
-    return RShape.createEllipse(x, y, w, h);
+  public static RShape getEllipse(float x, float y, float w, float h) {
+    return RShape.createEllipse(
+      x,
+      y,
+      w,
+      h
+    );
   }
 
-  public static RShape getEllipse(float x, float y, float w){
-    return getEllipse(x, y, w, w);
+  public static RShape getEllipse(float x, float y, float w) {
+    return getEllipse(
+      x,
+      y,
+      w,
+      w
+    );
   }
 
   /**
@@ -375,8 +423,13 @@ public class RG implements PConstants{
    * @param y2  y coordinate of the last point of the line
    * @return RShape, the shape created
    */
-  public static RShape getLine(float x1, float y1, float x2, float y2){
-    return RShape.createLine(x1, y1, x2, y2);
+  public static RShape getLine(float x1, float y1, float x2, float y2) {
+    return RShape.createLine(
+      x1,
+      y1,
+      x2,
+      y2
+    );
   }
 
   /**
@@ -388,12 +441,22 @@ public class RG implements PConstants{
    * @param h  height of the rectangle
    * @return RShape, the shape created
    */
-  public static RShape getRect(float x, float y, float w, float h){
-    return RShape.createRectangle(x, y, w, h);
+  public static RShape getRect(float x, float y, float w, float h) {
+    return RShape.createRectangle(
+      x,
+      y,
+      w,
+      h
+    );
   }
 
-  public static RShape getRect(float x, float y, float w){
-    return getRect(x, y, w, w);
+  public static RShape getRect(float x, float y, float w) {
+    return getRect(
+      x,
+      y,
+      w,
+      w
+    );
   }
 
   /**
@@ -406,8 +469,14 @@ public class RG implements PConstants{
    * @param spikes  the amount of spikes on the star polygon
    * @return RShape, the shape created
    */
-  public static RShape getStar(float x, float y, float widthBig, float widthSmall, int spikes){
-    return RShape.createStar(x, y, widthBig, widthSmall, spikes);
+  public static RShape getStar(float x, float y, float widthBig, float widthSmall, int spikes) {
+    return RShape.createStar(
+      x,
+      y,
+      widthBig,
+      widthSmall,
+      spikes
+    );
   }
 
 
@@ -420,20 +489,32 @@ public class RG implements PConstants{
    * @param widthSmall  the inner width of the ring polygon
    * @return RShape, the shape created
    */
-  public static RShape getRing(float x, float y, float widthBig, float widthSmall){
-    return RShape.createRing(x, y, widthBig, widthSmall);
+  public static RShape getRing(float x, float y, float widthBig, float widthSmall) {
+    return RShape.createRing(
+      x,
+      y,
+      widthBig,
+      widthSmall
+    );
   }
 
 
   // Transformation methods
-  public static RShape centerIn(RShape grp, PGraphics g, float margin){
+  public static RShape centerIn(RShape grp, PGraphics g, float margin) {
     RShape ret = new RShape(grp);
-    ret.centerIn(g, margin);
+    ret.centerIn(
+      g,
+      margin
+    );
     return ret;
   }
 
-  public static RShape centerIn(RShape grp, PGraphics g){
-    return centerIn(grp, g, 0);
+  public static RShape centerIn(RShape grp, PGraphics g) {
+    return centerIn(
+      grp,
+      g,
+      0
+    );
   }
 
   /**
@@ -443,7 +524,7 @@ public class RG implements PConstants{
    * @param t  the proportion (a value from 0 to 1) along the curve where to split
    * @return RShape[], an array of shapes with two elements, one for each side of the split
    */
-  public static RShape[] split(RShape shp, float t){
+  public static RShape[] split(RShape shp, float t) {
     return shp.split(t);
   }
 
@@ -455,7 +536,7 @@ public class RG implements PConstants{
    * @return RShape  the adapted shape
    * @related setAdaptor ( )
    */
-  public static RShape adapt(RShape shp, RShape path){
+  public static RShape adapt(RShape shp, RShape path) {
     RShape ret = new RShape(shp);
     ret.adapt(path);
     return ret;
@@ -468,7 +549,7 @@ public class RG implements PConstants{
    * @return RShape, the polygonized shape
    * @related setPolygonizer ( )
    */
-  public static RShape polygonize(RShape shp){
+  public static RShape polygonize(RShape shp) {
     RShape ret = new RShape(shp);
     ret.polygonize();
     return ret;
@@ -476,10 +557,11 @@ public class RG implements PConstants{
 
 
   // State methods
+
   /**
    * Initialize the library.  Must be called before any call to Geomerative methods.  Must be called by passing the PApplet.  e.g. RG.init(this)
    */
-  public static void init(PApplet _parent){
+  public static void init(PApplet _parent) {
     parent = _parent;
     initialized = true;
   }
@@ -494,21 +576,21 @@ public class RG implements PConstants{
   /**
    * @invisible
    */
-  protected static PApplet parent(){
-    if(parent == null){
+  protected static PApplet parent() {
+    if (parent == null) {
       throw new LibraryNotInitializedException();
     }
 
     return parent;
   }
-  
+
   /**
    * @invisible
    */
   protected static int dpi() {
     return dpi;
   }
-  
+
   /**
    * Use this to set the resolution of the display.  This specifies the Dots Per Inch of the display.
    * @param _dpi  the dots per inch of the display
@@ -528,7 +610,7 @@ public class RG implements PConstants{
    * @related intersection ( )
    * @related xor ( )
    */
-  public static RShape diff(RShape a, RShape b){
+  public static RShape diff(RShape a, RShape b) {
     return a.diff(b);
   }
 
@@ -543,7 +625,7 @@ public class RG implements PConstants{
    * @related intersection ( )
    * @related xor ( )
    */
-  public static RShape union(RShape a, RShape b){
+  public static RShape union(RShape a, RShape b) {
     return a.union(b);
   }
 
@@ -558,7 +640,7 @@ public class RG implements PConstants{
    * @related intersection ( )
    * @related xor ( )
    */
-  public static RShape intersection(RShape a, RShape b){
+  public static RShape intersection(RShape a, RShape b) {
     return a.intersection(b);
   }
 
@@ -573,7 +655,7 @@ public class RG implements PConstants{
    * @related intersection ( )
    * @related xor ( )
    */
-  public static RShape xor(RShape a, RShape b){
+  public static RShape xor(RShape a, RShape b) {
     return a.xor(b);
   }
 
@@ -582,11 +664,11 @@ public class RG implements PConstants{
    * @eexample ignoreStyles
    * @param value  value to which the ignoreStyles state should be set
    */
-  public static void ignoreStyles(boolean value){
+  public static void ignoreStyles(boolean value) {
     ignoreStyles = value;
   }
 
-  public static void ignoreStyles(){
+  public static void ignoreStyles() {
     ignoreStyles = true;
   }
 
@@ -599,7 +681,7 @@ public class RG implements PConstants{
    * @related BYELEMENTPOSITION
    * @related BYELEMENTINDEX
    */
-  public static void setAdaptor(int adptorType){
+  public static void setAdaptor(int adptorType) {
     adaptorType = adptorType;
   }
 
@@ -608,7 +690,7 @@ public class RG implements PConstants{
    * @eexample RShape_setAdaptor
    * @param adptorScale  the scaling coefficient
    */
-  public static void setAdaptorScale(float adptorScale){
+  public static void setAdaptorScale(float adptorScale) {
     adaptorScale = adptorScale;
   }
 
@@ -617,8 +699,8 @@ public class RG implements PConstants{
    * @eexample RShape_setAdaptorLengthOffset
    * @param adptorLengthOffset  the offset along the curve of the shape. Must be a value between 0 and 1;
    * */
-  public static void setAdaptorLengthOffset(float adptorLengthOffset) throws RuntimeException{
-    if(adptorLengthOffset>=0F && adptorLengthOffset<=1F)
+  public static void setAdaptorLengthOffset(float adptorLengthOffset) throws RuntimeException {
+    if (adptorLengthOffset >= 0F && adptorLengthOffset <= 1F)
       adaptorLengthOffset = adptorLengthOffset;
     else
       throw new RuntimeException("The adaptor length offset must take a value between 0 and 1.");
@@ -635,7 +717,7 @@ public class RG implements PConstants{
    * @related UNIFORMLENGTH
    * @related UNIFORMSTEP
    * */
-  public static void setPolygonizer(int segmenterMethod){
+  public static void setPolygonizer(int segmenterMethod) {
     RCommand.setSegmentator(segmenterMethod);
   }
 
@@ -645,7 +727,7 @@ public class RG implements PConstants{
    * @param angle  an angle from 0 to PI/2 it defines the maximum angle between segments.
    * @related ADAPTATIVE
    * */
-  public static void setPolygonizerAngle(float angle){
+  public static void setPolygonizerAngle(float angle) {
     RCommand.setSegmentAngle(angle);
   }
 
@@ -656,7 +738,7 @@ public class RG implements PConstants{
    * @related UNIFORMLENGTH
    * @related polygonize ( )
    */
-  public static void setPolygonizerLength(float length){
+  public static void setPolygonizerLength(float length) {
     RCommand.setSegmentLength(length);
   }
 
@@ -667,7 +749,7 @@ public class RG implements PConstants{
    * @related UNIFORMSTEP
    * @related polygonize ( )
    */
-  public static void setPolygonizerStep(float step){
+  public static void setPolygonizerStep(float step) {
     RCommand.setSegmentStep(step);
   }
 
